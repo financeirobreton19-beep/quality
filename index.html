@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quality Fuel Control - Sistema em Nuvem</title>
+    <title>Quality Diesel - Sistema de Gestão</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -15,959 +16,530 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
-        .app-container { display: flex; min-height: 100vh; }
+        
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); position: fixed; top: 0; left: 0; width: 100%; z-index: 2000; }
+        .login-card { background: white; border-radius: 20px; padding: 40px; width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-card h1 { text-align: center; margin-bottom: 10px; color: #1a237e; }
+        .login-card .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .input-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; }
+        .btn-login { width: 100%; padding: 12px; background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .error-message { background: #fee; color: #c00; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; display: none; }
+        
+        .app-container { display: flex; min-height: 100vh; display: none; }
         .sidebar { width: 280px; background: white; position: fixed; left: 0; top: 0; height: 100vh; box-shadow: 2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; z-index: 100; }
         .logo { padding: 30px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
         .logo h2 { color: #1a237e; margin-top: 10px; }
         .logo small { font-size: 11px; display: block; margin-top: 5px; }
-        .online { color: #28a745; }
-        .offline { color: #dc3545; }
         .nav-item { padding: 12px 24px; margin: 4px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #555; transition: all 0.3s; }
-        .nav-item:hover { background: #f5f5f5; color: #333; }
-        .nav-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .nav-item:hover { background: #f5f5f5; }
+        .nav-item.active { background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white; }
         .nav-item i { width: 24px; }
+        
         .main-content { margin-left: 280px; padding: 30px; width: 100%; }
         .page { display: none; }
         .page.active { display: block; }
+        
         .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .card-header { font-size: 18px; font-weight: 600; margin-bottom: 15px; border-left: 4px solid #667eea; padding-left: 12px; }
+        .card-header { font-size: 18px; font-weight: 600; margin-bottom: 15px; border-left: 4px solid #1a237e; padding-left: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
         .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #555; font-size: 13px; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; }
-        .data-table { width: 100%; overflow-x: auto; }
-        .data-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
-        .data-table th { background: #f5f5f5; font-weight: 600; color: #333; }
-        .data-table tr:hover { background: #fafafa; }
+        
+        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #e9ecef; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
+        .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e9ecef; }
+        .data-table th { background: #1a237e; color: white; font-weight: 600; cursor: pointer; user-select: none; }
+        .data-table th:hover { background: #283593; }
+        .data-table tr:hover { background: #f8f9fa; }
+        
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
         .badge-active { background: #d4edda; color: #155724; }
         .badge-vencido { background: #f8d7da; color: #721c24; }
         .badge-pago { background: #d4edda; color: #155724; }
         .badge-vencer { background: #fff3cd; color: #856404; }
         .badge-parcial { background: #d1ecf1; color: #0c5460; }
+        
         .metric-card { text-align: center; padding: 15px; background: #f8f9fa; border-radius: 12px; }
         .metric-value { font-size: 28px; font-weight: 800; color: #1a237e; }
         .metric-label { color: #666; font-size: 12px; margin-top: 5px; }
-        .btn { padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        
+        .btn { padding: 10px 20px; background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
         .btn:hover { transform: translateY(-1px); opacity: 0.9; }
+        
         .btn-icon { padding: 6px 10px; font-size: 12px; width: auto; display: inline-flex; align-items: center; gap: 5px; margin: 2px; border-radius: 6px; cursor: pointer; border: none; }
         .btn-edit { background: #ffc107; color: #333; }
         .btn-delete { background: #dc3545; color: white; }
+        .btn-primary { background: #1a237e; color: white; }
+        .btn-excel { background: #25a366; color: white; }
+        
         .filters { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; }
         .filters .form-group { margin-bottom: 0; min-width: 150px; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; border-radius: 15px; padding: 25px; width: 500px; max-width: 90%; }
         .modal-header { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #1a237e; }
         .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        
         .dre-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .dre-section { background: white; border-radius: 15px; padding: 20px; }
         .dre-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
         .dre-total { font-weight: 700; font-size: 16px; color: #1a237e; border-bottom: 2px solid #1a237e; }
         .dre-result { background: #e8f5e9; padding: 15px; border-radius: 10px; text-align: center; margin-top: 20px; }
+        
         .action-buttons { display: flex; gap: 4px; flex-wrap: wrap; }
         .resumo-card { background: #f8f9fa; border-radius: 10px; padding: 15px; }
         .resumo-cliente { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e0e0e0; }
         .resumo-cliente:last-child { border-bottom: none; }
+        
         .search-box { position: relative; }
         .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
         .search-box input { padding-left: 35px; }
+        
         .loading { text-align: center; padding: 40px; color: #666; }
+        .user-info { padding: 15px 20px; border-top: 1px solid #e0e0e0; margin-top: 20px; font-size: 13px; }
+        
+        .btn-group { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fas fa-gas-pump" style="font-size: 40px; color: #667eea;"></i>
-            <h2>Quality Fuel</h2>
-            <small id="syncStatus"><i class="fas fa-cloud-upload-alt"></i> Conectando ao Firebase...</small>
-        </div>
-        <div class="nav-menu">
-            <div class="nav-item active" data-page="clientes"><i class="fas fa-users"></i> Clientes</div>
-            <div class="nav-item" data-page="vendas"><i class="fas fa-shopping-cart"></i> Vendas</div>
-            <div class="nav-item" data-page="contas"><i class="fas fa-file-invoice"></i> Contas a Receber</div>
-            <div class="nav-item" data-page="contaCorrente"><i class="fas fa-university"></i> Conta Corrente</div>
-            <div class="nav-item" data-page="medias"><i class="fas fa-chart-bar"></i> Média Ponderada</div>
-            <div class="nav-item" data-page="dre"><i class="fas fa-chart-pie"></i> DRE</div>
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <h1>⛽ QUALITY DIESEL</h1>
+            <p class="subtitle">Sistema de Gestão de Combustíveis</p>
+            <div class="input-group">
+                <label>Usuário</label>
+                <input type="text" id="loginUser" placeholder="Digite seu usuário">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="loginPass" placeholder="Digite sua senha">
+            </div>
+            <button class="btn-login" onclick="doLogin()">Entrar</button>
+            <div id="loginError" class="error-message"></div>
+            <p style="text-align:center; margin-top:15px; font-size:12px; color:#999;">admin/admin123 | vendedor/venda123</p>
         </div>
     </div>
 
-    <div class="main-content">
-        <div id="page-clientes" class="page active">
-            <h1 style="margin-bottom: 20px;">👥 Clientes</h1>
-            <div class="card">
-                <div class="card-header">➕ Novo Cliente</div>
-                <div class="grid-2">
-                    <div class="form-group"><label>Razão Social</label><input type="text" id="clienteRazao" placeholder="Nome da empresa"></div>
-                    <div class="form-group"><label>CNPJ</label><input type="text" id="clienteCnpj" placeholder="00.000.000/0000-00"></div>
-                    <div class="form-group"><label>Segmento</label><select id="clienteSegmento"><option value="">Selecione</option><option>Aéreo</option><option>Transporte</option><option>Navegação</option><option>Construção</option><option>Comércio</option><option>Outro</option></select></div>
-                    <div class="form-group"><label>Contato</label><input type="text" id="clienteContato" placeholder="Nome do contato"></div>
-                    <div class="form-group"><label>Telefone</label><input type="text" id="clienteTelefone" placeholder="(00) 00000-0000"></div>
-                    <div class="form-group"><label>E-mail</label><input type="email" id="clienteEmail" placeholder="email@empresa.com"></div>
-                    <div class="form-group"><label>Limite de Crédito (R$)</label><input type="number" id="clienteLimite" value="0" step="1000"></div>
-                    <div class="form-group"><label>Status</label><select id="clienteStatus"><option>Ativo</option><option>Bloqueado</option><option>Inativo</option></select></div>
-                </div>
-                <button class="btn" onclick="salvarCliente()">💾 Salvar Cliente</button>
+    <div id="appContainer" class="app-container">
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-gas-pump" style="font-size: 40px; color: #1a237e;"></i>
+                <h2>Quality Diesel</h2>
+                <small id="syncStatus">Conectando...</small>
             </div>
-            <div class="card">
-                <div class="card-header">📋 Lista de Clientes</div>
-                <div class="filters">
-                    <div class="form-group search-box" style="flex:1">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="buscarCliente" placeholder="Buscar por nome ou CNPJ..." onkeyup="filtrarClientes()">
+            <div class="nav-menu">
+                <div class="nav-item" data-page="clientes"><i class="fas fa-users"></i> Clientes</div>
+                <div class="nav-item" data-page="vendas"><i class="fas fa-shopping-cart"></i> Vendas</div>
+                <div class="nav-item" data-page="contas"><i class="fas fa-file-invoice"></i> Contas a Receber</div>
+                <div class="nav-item" data-page="contaCorrente"><i class="fas fa-university"></i> Conta Corrente</div>
+                <div class="nav-item" data-page="medias"><i class="fas fa-chart-bar"></i> Média Ponderada</div>
+                <div class="nav-item" data-page="dre"><i class="fas fa-chart-pie"></i> DRE</div>
+            </div>
+            <div class="user-info" id="userInfo"></div>
+        </div>
+
+        <div class="main-content">
+            <!-- Clientes Page -->
+            <div id="page-clientes" class="page">
+                <h1>👥 Clientes</h1>
+                <div class="card">
+                    <div class="card-header">➕ Novo Cliente</div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Razão Social</label><input type="text" id="clienteRazao"></div>
+                        <div class="form-group"><label>CNPJ</label><input type="text" id="clienteCnpj"></div>
+                        <div class="form-group"><label>Segmento</label><select id="clienteSegmento"><option value="">Selecione</option><option>Aéreo</option><option>Transporte</option><option>Navegação</option><option>Construção</option><option>Comércio</option><option>Outro</option></select></div>
+                        <div class="form-group"><label>Contato</label><input type="text" id="clienteContato"></div>
+                        <div class="form-group"><label>Telefone</label><input type="text" id="clienteTelefone"></div>
+                        <div class="form-group"><label>E-mail</label><input type="email" id="clienteEmail"></div>
+                        <div class="form-group"><label>Limite de Crédito</label><input type="number" id="clienteLimite" value="0"></div>
+                        <div class="form-group"><label>Status</label><select id="clienteStatus"><option>Ativo</option><option>Bloqueado</option><option>Inativo</option></select></div>
+                    </div>
+                    <button class="btn" onclick="salvarCliente()">💾 Salvar Cliente</button>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>📋 Lista de Clientes</span><button class="btn-icon btn-excel" onclick="exportarClientes()"><i class="fas fa-file-excel"></i> Excel</button></div>
+                    <div class="filters"><div class="form-group search-box"><i class="fas fa-search"></i><input type="text" id="buscarCliente" placeholder="Buscar..." onkeyup="filtrarClientes()"></div></div>
+                    <div class="table-wrapper" id="clientesTable"><div class="loading">Carregando...</div></div>
+                </div>
+            </div>
+
+            <!-- Vendas Page -->
+            <div id="page-vendas" class="page">
+                <h1>💰 Vendas</h1>
+                <div class="card">
+                    <div class="card-header">📝 Nova Venda</div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Data</label><input type="date" id="vendaData"></div>
+                        <div class="form-group"><label>Cliente</label><select id="vendaCliente"></select></div>
+                        <div class="form-group"><label>Combustível</label><select id="vendaCombustivel"><option>Marítimo</option><option>S-10</option><option>S-500</option></select></div>
+                        <div class="form-group"><label>Volume (L)</label><input type="number" id="vendaVolume" value="0" oninput="calcularMargem()"></div>
+                        <div class="form-group"><label>Preço Compra</label><input type="number" id="vendaPrecoCompra" step="0.01" value="0" oninput="calcularMargem()"></div>
+                        <div class="form-group"><label>Preço Venda</label><input type="number" id="vendaPrecoVenda" step="0.01" value="0" oninput="calcularMargem()"></div>
+                        <div class="form-group"><label>Forma Pagamento</label><select id="vendaFormaPagamento"><option>À vista</option><option>15 dias</option><option>30 dias</option><option>60 dias</option></select></div>
+                        <div class="form-group"><label>Observação</label><textarea id="vendaObservacao" rows="2"></textarea></div>
+                    </div>
+                    <div id="vendaResumo" style="margin:15px 0;padding:15px;background:#f5f5f5;border-radius:10px;"></div>
+                    <button class="btn" onclick="salvarVenda()">💰 Registrar Venda</button>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>📋 Histórico de Vendas</span><button class="btn-icon btn-excel" onclick="exportarVendas()"><i class="fas fa-file-excel"></i> Excel</button></div>
+                    <div class="filters">
+                        <div class="form-group"><label>Cliente</label><select id="filtroVendaCliente" onchange="filtrarVendas()"><option value="">Todos</option></select></div>
+                        <div class="form-group"><label>Data Início</label><input type="date" id="filtroVendaInicio" onchange="filtrarVendas()"></div>
+                        <div class="form-group"><label>Data Fim</label><input type="date" id="filtroVendaFim" onchange="filtrarVendas()"></div>
+                    </div>
+                    <div class="table-wrapper" id="vendasTable"><div class="loading">Carregando...</div></div>
+                </div>
+            </div>
+
+            <!-- Contas a Receber Page -->
+            <div id="page-contas" class="page">
+                <h1>📋 Contas a Receber</h1>
+                <div class="card">
+                    <div class="card-header">✅ Confirmar Recebimento</div>
+                    <div class="grid-3">
+                        <div class="form-group"><label>Conta</label><select id="contaReceberSelect"></select></div>
+                        <div class="form-group"><label>Valor Recebido</label><input type="number" id="contaValorRecebido" step="0.01" value="0"></div>
+                        <div class="form-group"><label>Data Pagamento</label><input type="date" id="contaDataPagamento"></div>
+                    </div>
+                    <button class="btn" onclick="confirmarRecebimento()">💰 Confirmar</button>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span>📋 Lista de Contas</span><button class="btn-icon btn-excel" onclick="exportarContas()"><i class="fas fa-file-excel"></i> Excel</button></div>
+                    <div class="filters">
+                        <div class="form-group"><label>Cliente</label><select id="filtroContaCliente" onchange="filtrarContas()"><option value="">Todos</option></select></div>
+                        <div class="form-group"><label>Status</label><select id="filtroContaStatus" onchange="filtrarContas()"><option value="">Todos</option><option>A vencer</option><option>Vencido</option><option>Parcial</option><option>Pago</option></select></div>
+                        <div class="form-group"><label>Data Início</label><input type="date" id="filtroContaInicio" onchange="filtrarContas()"></div>
+                        <div class="form-group"><label>Data Fim</label><input type="date" id="filtroContaFim" onchange="filtrarContas()"></div>
+                    </div>
+                    <div class="table-wrapper" id="contasTable"><div class="loading">Carregando...</div></div>
+                </div>
+                <div class="card"><div class="card-header">📊 Resumo por Cliente</div><div id="resumoContasCliente"></div></div>
+            </div>
+
+            <!-- Conta Corrente Page -->
+            <div id="page-contaCorrente" class="page">
+                <h1>🏦 Conta Corrente</h1>
+                <div class="card">
+                    <div class="card-header"><span>📊 Extrato</span><button class="btn-icon btn-excel" onclick="exportarExtrato()"><i class="fas fa-file-excel"></i> Excel</button></div>
+                    <div class="filters">
+                        <div class="form-group"><label>Cliente</label><select id="ccCliente" onchange="carregarCC()"></select></div>
+                        <div class="form-group"><label>Período</label><select id="ccPeriodo" onchange="carregarCC()"><option>Últimos 30 dias</option><option>Últimos 90 dias</option><option>Todo histórico</option></select></div>
+                    </div>
+                    <div id="ccResumoCliente"></div>
+                    <div class="table-wrapper" id="ccExtrato"></div>
+                    <canvas id="ccChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- Média Ponderada Page -->
+            <div id="page-medias" class="page">
+                <h1>📊 Média Ponderada</h1>
+                <div class="btn-group">
+                    <button class="btn-icon btn-excel" onclick="exportarMedias()"><i class="fas fa-file-excel"></i> Exportar</button>
+                    <button class="btn-icon btn-primary" onclick="fazerBackup()"><i class="fas fa-download"></i> Backup</button>
+                    <button class="btn-icon btn-edit" onclick="restaurarBackup()"><i class="fas fa-upload"></i> Restaurar</button>
+                </div>
+                <div class="grid-3" id="mediasCards"></div>
+                <div class="card"><div class="card-header">📈 Análises Avançadas</div><div class="grid-2" id="analisesAvancadas"></div></div>
+            </div>
+
+            <!-- DRE Page -->
+            <div id="page-dre" class="page">
+                <h1>📄 DRE</h1>
+                <div class="btn-group"><button class="btn-icon btn-excel" onclick="exportarDRE()"><i class="fas fa-file-excel"></i> Exportar</button></div>
+                <div class="card">
+                    <div class="card-header">🔍 Filtros</div>
+                    <div class="filters">
+                        <div class="form-group"><label>Data Início</label><input type="date" id="dreDataInicio" onchange="calcularDRE()"></div>
+                        <div class="form-group"><label>Data Fim</label><input type="date" id="dreDataFim" onchange="calcularDRE()"></div>
+                        <div class="form-group"><label>Combustível</label><select id="dreCombustivel" onchange="calcularDRE()"><option value="">Todos</option><option>Marítimo</option><option>S-10</option><option>S-500</option></select></div>
+                        <div class="form-group"><label>Cliente</label><select id="dreCliente" onchange="calcularDRE()"><option value="">Todos</option></select></div>
                     </div>
                 </div>
-                <div id="clientesTable"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Carregando...</div></div>
-            </div>
-        </div>
-
-        <div id="page-vendas" class="page">
-            <h1 style="margin-bottom: 20px;">💰 Vendas</h1>
-            <div class="card">
-                <div class="card-header">📝 Nova Venda</div>
-                <div class="grid-2">
-                    <div class="form-group"><label>Data</label><input type="date" id="vendaData"></div>
-                    <div class="form-group"><label>Cliente</label><select id="vendaCliente"><option>Carregando...</option></select></div>
-                    <div class="form-group"><label>Combustível</label><select id="vendaCombustivel"><option>Marítimo</option><option>S-10</option><option>S-500</option></select></div>
-                    <div class="form-group"><label>Volume (Litros)</label><input type="number" id="vendaVolume" value="0" step="100" oninput="calcularMargem()"></div>
-                    <div class="form-group"><label>Preço Compra (R$/L)</label><input type="number" id="vendaPrecoCompra" step="0.01" value="0" oninput="calcularMargem()"></div>
-                    <div class="form-group"><label>Preço Venda (R$/L)</label><input type="number" id="vendaPrecoVenda" step="0.01" value="0" oninput="calcularMargem()"></div>
-                    <div class="form-group"><label>Forma Pagamento</label><select id="vendaFormaPagamento"><option>À vista</option><option>15 dias</option><option>30 dias</option><option>60 dias</option></select></div>
-                    <div class="form-group"><label>Observação</label><textarea id="vendaObservacao" rows="2" placeholder="Número da NF, etc."></textarea></div>
-                </div>
-                <div id="vendaResumo" style="margin:15px 0;padding:15px;background:#f5f5f5;border-radius:10px;"></div>
-                <button class="btn" onclick="salvarVenda()">💰 Registrar Venda</button>
-            </div>
-            <div class="card">
-                <div class="card-header">📋 Histórico de Vendas</div>
-                <div class="filters">
-                    <div class="form-group"><label>Cliente</label><select id="filtroVendaCliente" onchange="filtrarVendas()"><option value="">Todos</option></select></div>
-                    <div class="form-group"><label>Data Início</label><input type="date" id="filtroVendaInicio" onchange="filtrarVendas()"></div>
-                    <div class="form-group"><label>Data Fim</label><input type="date" id="filtroVendaFim" onchange="filtrarVendas()"></div>
-                </div>
-                <div id="vendasTable"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Carregando...</div></div>
-            </div>
-        </div>
-
-        <div id="page-contas" class="page">
-            <h1 style="margin-bottom: 20px;">📋 Contas a Receber</h1>
-            <div class="card">
-                <div class="card-header">✅ Confirmar Recebimento</div>
-                <div class="grid-3">
-                    <div class="form-group"><label>Selecione a Conta</label><select id="contaReceberSelect"></select></div>
-                    <div class="form-group"><label>Valor Recebido (R$)</label><input type="number" id="contaValorRecebido" step="0.01" value="0"></div>
-                    <div class="form-group"><label>Data Pagamento</label><input type="date" id="contaDataPagamento"></div>
-                </div>
-                <button class="btn" onclick="confirmarRecebimento()">💰 Confirmar Recebimento</button>
-            </div>
-            <div class="card">
-                <div class="card-header">📋 Lista de Contas</div>
-                <div class="filters">
-                    <div class="form-group"><label>Cliente</label><select id="filtroContaCliente" onchange="filtrarContas()"><option value="">Todos</option></select></div>
-                    <div class="form-group"><label>Status</label><select id="filtroContaStatus" onchange="filtrarContas()"><option value="">Todos</option><option>A vencer</option><option>Vencido</option><option>Parcial</option><option>Pago</option></select></div>
-                    <div class="form-group"><label>Data Início</label><input type="date" id="filtroContaInicio" onchange="filtrarContas()"></div>
-                    <div class="form-group"><label>Data Fim</label><input type="date" id="filtroContaFim" onchange="filtrarContas()"></div>
-                </div>
-                <div id="contasTable"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Carregando...</div></div>
-            </div>
-            <div class="card">
-                <div class="card-header">📊 Resumo por Cliente</div>
-                <div id="resumoContasCliente"></div>
-            </div>
-        </div>
-
-        <div id="page-contaCorrente" class="page">
-            <h1 style="margin-bottom: 20px;">🏦 Conta Corrente</h1>
-            <div class="card">
-                <div class="filters">
-                    <div class="form-group"><label>Cliente</label><select id="ccCliente" onchange="carregarCC()"><option value="">Selecione</option></select></div>
-                    <div class="form-group"><label>Período</label><select id="ccPeriodo" onchange="carregarCC()"><option>Últimos 30 dias</option><option>Últimos 90 dias</option><option>Todo histórico</option></select></div>
-                </div>
-                <div id="ccResumoCliente"></div>
-                <div id="ccExtrato"></div>
-                <canvas id="ccChart" height="100" style="margin-top: 20px;"></canvas>
-            </div>
-        </div>
-
-        <div id="page-medias" class="page">
-            <h1 style="margin-bottom: 20px;">📊 Média Ponderada e Análises</h1>
-            <div class="grid-3" id="mediasCards"></div>
-            <div class="card">
-                <div class="card-header">📈 Análises Avançadas</div>
-                <div class="grid-2" id="analisesAvancadas"></div>
-            </div>
-        </div>
-
-        <div id="page-dre" class="page">
-            <h1 style="margin-bottom: 20px;">📄 Demonstração de Resultado (DRE)</h1>
-            <div class="dre-layout" id="dreContent"></div>
-            <div class="card" style="margin-top: 20px;">
-                <div class="card-header">⚙️ Custos Fixos (editáveis)</div>
-                <div class="grid-3">
-                    <div class="form-group"><label>Salários</label><input type="number" id="dreSalarios" value="45000" step="1000" oninput="calcularDRE()"></div>
-                    <div class="form-group"><label>Encargos Sociais</label><input type="number" id="dreEncargos" value="15000" step="1000" oninput="calcularDRE()"></div>
-                    <div class="form-group"><label>Contador</label><input type="number" id="dreContador" value="2000" step="500" oninput="calcularDRE()"></div>
-                    <div class="form-group"><label>Energia</label><input type="number" id="dreEnergia" value="3000" step="500" oninput="calcularDRE()"></div>
-                    <div class="form-group"><label>Aluguel</label><input type="number" id="dreAluguel" value="5000" step="500" oninput="calcularDRE()"></div>
-                    <div class="form-group"><label>Financiamentos</label><input type="number" id="dreFinanciamentos" value="14000" step="1000" oninput="calcularDRE()"></div>
-                    <div class="form-group"><label>Outros Custos</label><input type="number" id="dreOutros" value="3000" step="500" oninput="calcularDRE()"></div>
+                <div class="dre-layout" id="dreContent"></div>
+                <div class="card">
+                    <div class="card-header">⚙️ Custos Fixos</div>
+                    <div class="grid-3">
+                        <div class="form-group"><label>Salários</label><input type="number" id="dreSalarios" value="45000" oninput="calcularDRE()"></div>
+                        <div class="form-group"><label>Encargos</label><input type="number" id="dreEncargos" value="15000" oninput="calcularDRE()"></div>
+                        <div class="form-group"><label>Contador</label><input type="number" id="dreContador" value="2000" oninput="calcularDRE()"></div>
+                        <div class="form-group"><label>Energia</label><input type="number" id="dreEnergia" value="3000" oninput="calcularDRE()"></div>
+                        <div class="form-group"><label>Aluguel</label><input type="number" id="dreAluguel" value="5000" oninput="calcularDRE()"></div>
+                        <div class="form-group"><label>Financiamentos</label><input type="number" id="dreFinanciamentos" value="14000" oninput="calcularDRE()"></div>
+                        <div class="form-group"><label>Outros</label><input type="number" id="dreOutros" value="3000" oninput="calcularDRE()"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modais -->
-<div id="modalCliente" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">✏️ Editar Cliente</div>
-        <input type="hidden" id="editClienteId">
-        <div class="form-group"><label>Razão Social</label><input type="text" id="editClienteRazao"></div>
-        <div class="form-group"><label>CNPJ</label><input type="text" id="editClienteCnpj"></div>
-        <div class="form-group"><label>Segmento</label><select id="editClienteSegmento"><option>Aéreo</option><option>Transporte</option><option>Navegação</option><option>Construção</option><option>Comércio</option><option>Outro</option></select></div>
-        <div class="form-group"><label>Contato</label><input type="text" id="editClienteContato"></div>
-        <div class="form-group"><label>Telefone</label><input type="text" id="editClienteTelefone"></div>
-        <div class="form-group"><label>Email</label><input type="email" id="editClienteEmail"></div>
-        <div class="form-group"><label>Limite de Crédito</label><input type="number" id="editClienteLimite" step="1000"></div>
-        <div class="form-group"><label>Status</label><select id="editClienteStatus"><option>Ativo</option><option>Bloqueado</option><option>Inativo</option></select></div>
-        <div class="modal-buttons">
-            <button class="btn-icon btn-primary" onclick="salvarEdicaoCliente()">💾 Salvar</button>
-            <button class="btn-icon btn-delete" onclick="fecharModal('modalCliente')">Cancelar</button>
-        </div>
-    </div>
-</div>
+    <!-- Modais -->
+    <div id="modalCliente" class="modal"><div class="modal-content"><div class="modal-header">✏️ Editar Cliente</div><input type="hidden" id="editClienteId"><input type="hidden" id="editClienteFirebaseId"><div class="form-group"><label>Razão Social</label><input type="text" id="editClienteRazao"></div><div class="form-group"><label>CNPJ</label><input type="text" id="editClienteCnpj"></div><div class="form-group"><label>Segmento</label><select id="editClienteSegmento"><option>Aéreo</option><option>Transporte</option><option>Navegação</option><option>Construção</option><option>Comércio</option><option>Outro</option></select></div><div class="form-group"><label>Contato</label><input type="text" id="editClienteContato"></div><div class="form-group"><label>Telefone</label><input type="text" id="editClienteTelefone"></div><div class="form-group"><label>Email</label><input type="email" id="editClienteEmail"></div><div class="form-group"><label>Limite Crédito</label><input type="number" id="editClienteLimite"></div><div class="form-group"><label>Status</label><select id="editClienteStatus"><option>Ativo</option><option>Bloqueado</option><option>Inativo</option></select></div><div class="modal-buttons"><button class="btn-icon btn-primary" onclick="salvarEdicaoCliente()">Salvar</button><button class="btn-icon btn-delete" onclick="fecharModal('modalCliente')">Cancelar</button></div></div></div>
 
-<div id="modalConta" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">✏️ Editar Conta</div>
-        <input type="hidden" id="editContaId">
-        <div class="form-group"><label>Valor Original</label><input type="number" id="editContaValor" step="0.01"></div>
-        <div class="form-group"><label>Valor Pago</label><input type="number" id="editContaPago" step="0.01"></div>
-        <div class="form-group"><label>Data Previsão</label><input type="date" id="editContaPrevisao"></div>
-        <div class="form-group"><label>Status</label><select id="editContaStatus"><option>A vencer</option><option>Vencido</option><option>Parcial</option><option>Pago</option></select></div>
-        <div class="modal-buttons">
-            <button class="btn-icon btn-primary" onclick="salvarEdicaoConta()">💾 Salvar</button>
-            <button class="btn-icon btn-delete" onclick="fecharModal('modalConta')">Cancelar</button>
-        </div>
-    </div>
-</div>
+    <div id="modalConta" class="modal"><div class="modal-content"><div class="modal-header">✏️ Editar Conta</div><input type="hidden" id="editContaId"><div class="form-group"><label>Valor Original</label><input type="number" step="0.01" id="editContaValor"></div><div class="form-group"><label>Valor Pago</label><input type="number" step="0.01" id="editContaPago"></div><div class="form-group"><label>Data Previsão</label><input type="date" id="editContaPrevisao"></div><div class="form-group"><label>Status</label><select id="editContaStatus"><option>A vencer</option><option>Vencido</option><option>Parcial</option><option>Pago</option></select></div><div class="modal-buttons"><button class="btn-icon btn-primary" onclick="salvarEdicaoConta()">Salvar</button><button class="btn-icon btn-delete" onclick="fecharModal('modalConta')">Cancelar</button></div></div></div>
 
-<script>
-    // FIREBASE CONFIG - SEUS DADOS
-    const firebaseConfig = {
-        apiKey: "AIzaSyAa0ejRh5Q5WTJMgBX5pFRKeifSxQD6IyQ",
-        authDomain: "quality-1211b.firebaseapp.com",
-        projectId: "quality-1211b",
-        storageBucket: "quality-1211b.firebasestorage.app",
-        messagingSenderId: "350293215869",
-        appId: "1:350293215869:web:e9ef29741700d8e6ecbf14",
-        measurementId: "G-F3WXFVT9BT"
-    };
+    <input type="file" id="restoreFileInput" style="display: none;" accept=".json" onchange="processarRestore(event)">
 
-    // Inicializar Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    
-    // Coleções
-    const clientesRef = db.collection('clientes');
-    const vendasRef = db.collection('vendas');
-    const contasRef = db.collection('contasReceber');
-
-    // Variáveis globais
-    let clientesList = [];
-    let vendasList = [];
-    let contasList = [];
-    let clientesFiltrados = [];
-    let vendasFiltradas = [];
-    let contasFiltradas = [];
-
-    // Status de conexão
-    document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Firebase Online';
-    document.getElementById('syncStatus').classList.add('online');
-
-    // Funções auxiliares
-    function formatMoney(value) {
-        if (value === undefined || value === null || isNaN(value) || value === '') return 'R$ 0,00';
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-    }
-
-    function formatDate(date) {
-        if (!date) return '-';
-        return new Date(date).toLocaleDateString('pt-BR');
-    }
-
-    // Navegação
-    function changePage(pageName) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(`page-${pageName}`).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-        const activeNav = document.querySelector(`.nav-item[data-page="${pageName}"]`);
-        if (activeNav) activeNav.classList.add('active');
-        
-        if (pageName === 'clientes') loadClientes();
-        if (pageName === 'vendas') { carregarFiltrosVenda(); loadVendas(); }
-        if (pageName === 'contas') { carregarFiltrosConta(); loadContas(); }
-        if (pageName === 'contaCorrente') carregarCC();
-        if (pageName === 'medias') loadMedias();
-        if (pageName === 'dre') calcularDRE();
-    }
-
-    document.querySelectorAll('.nav-item').forEach(nav => {
-        nav.addEventListener('click', () => changePage(nav.getAttribute('data-page')));
-    });
-
-    // ==================== CARREGAR DADOS ====================
-    async function carregarClientes() {
-        const snapshot = await clientesRef.orderBy('razao_social').get();
-        clientesList = [];
-        snapshot.forEach(doc => {
-            clientesList.push({ id: doc.id, ...doc.data() });
-        });
-        clientesFiltrados = [...clientesList];
-        return clientesList;
-    }
-
-    async function carregarVendas() {
-        const snapshot = await vendasRef.orderBy('data_venda', 'desc').get();
-        vendasList = [];
-        snapshot.forEach(doc => {
-            vendasList.push({ id: doc.id, ...doc.data() });
-        });
-        vendasFiltradas = [...vendasList];
-        return vendasList;
-    }
-
-    async function carregarContas() {
-        const snapshot = await contasRef.orderBy('data_previsao_pagamento').get();
-        contasList = [];
-        snapshot.forEach(doc => {
-            contasList.push({ id: doc.id, ...doc.data() });
-        });
-        contasFiltradas = [...contasList];
-        return contasList;
-    }
-
-    async function carregarTudo() {
-        await Promise.all([carregarClientes(), carregarVendas(), carregarContas()]);
-        loadClientes();
-        loadSelects();
-        loadVendas();
-        loadContas();
-        calcularMargem();
-    }
-
-    // ==================== CLIENTES ====================
-    async function salvarCliente() {
-        const cliente = {
-            razao_social: document.getElementById('clienteRazao').value || 'Cliente sem nome',
-            cnpj: document.getElementById('clienteCnpj').value,
-            segmento: document.getElementById('clienteSegmento').value,
-            contato: document.getElementById('clienteContato').value,
-            telefone: document.getElementById('clienteTelefone').value,
-            email: document.getElementById('clienteEmail').value,
-            limite_credito: parseFloat(document.getElementById('clienteLimite').value) || 0,
-            status: document.getElementById('clienteStatus').value,
-            created_at: new Date().toISOString()
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAa0ejRh5Q5WTJMgBX5pFRKeifSxQD6IyQ",
+            authDomain: "quality-1211b.firebaseapp.com",
+            projectId: "quality-1211b",
+            storageBucket: "quality-1211b.firebasestorage.app",
+            messagingSenderId: "350293215869",
+            appId: "1:350293215869:web:e9ef29741700d8e6ecbf14"
         };
-        
-        await clientesRef.add(cliente);
-        await carregarClientes();
-        loadClientes();
-        loadSelects();
-        
-        document.getElementById('clienteRazao').value = '';
-        document.getElementById('clienteCnpj').value = '';
-        document.getElementById('clienteContato').value = '';
-        document.getElementById('clienteTelefone').value = '';
-        document.getElementById('clienteEmail').value = '';
-        document.getElementById('clienteLimite').value = 0;
-        alert('Cliente cadastrado!');
-    }
 
-    function editarCliente(id) {
-        const cliente = clientesList.find(c => c.id === id);
-        if (cliente) {
-            document.getElementById('editClienteId').value = cliente.id;
-            document.getElementById('editClienteRazao').value = cliente.razao_social;
-            document.getElementById('editClienteCnpj').value = cliente.cnpj || '';
-            document.getElementById('editClienteSegmento').value = cliente.segmento || '';
-            document.getElementById('editClienteContato').value = cliente.contato || '';
-            document.getElementById('editClienteTelefone').value = cliente.telefone || '';
-            document.getElementById('editClienteEmail').value = cliente.email || '';
-            document.getElementById('editClienteLimite').value = cliente.limite_credito || 0;
-            document.getElementById('editClienteStatus').value = cliente.status;
-            document.getElementById('modalCliente').style.display = 'flex';
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        const clientesRef = db.collection('clientes');
+        const vendasRef = db.collection('vendas');
+        const contasRef = db.collection('contasReceber');
+
+        let clientesList = [], vendasList = [], contasList = [];
+        let clientesFiltrados = [], vendasFiltradas = [], contasFiltradas = [];
+        let ordenacaoClientes = { coluna: 'razao_social', ordem: 'asc' };
+        let ordenacaoVendas = { coluna: 'data_venda', ordem: 'desc' };
+        let ordenacaoContas = { coluna: 'data_previsao_pagamento', ordem: 'asc' };
+        let currentUser = null;
+        let proximoIdCliente = 1;
+
+        function formatMoney(v) { return v && !isNaN(v) ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v) : 'R$ 0,00'; }
+        function formatDate(d) { return d ? new Date(d).toLocaleDateString('pt-BR') : '-'; }
+
+        // Login
+        function doLogin() {
+            const user = { username: document.getElementById('loginUser').value, password: document.getElementById('loginPass').value };
+            const usuarios = [{ username: 'admin', password: 'admin123', nome: 'Admin', perfil: 'admin' }, { username: 'vendedor', password: 'venda123', nome: 'Vendedor', perfil: 'vendedor' }];
+            const found = usuarios.find(u => u.username === user.username && u.password === user.password);
+            if (found) {
+                currentUser = found;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('userInfo').innerHTML = `<i class="fas fa-user-circle"></i> ${found.nome}<br><small>${found.perfil === 'admin' ? 'Admin' : 'Vendedor'}</small><br><button class="btn-icon btn-delete" onclick="doLogout()">Sair</button>`;
+                inicializarSistema();
+            } else {
+                const err = document.getElementById('loginError');
+                err.innerText = 'Usuário ou senha inválidos!';
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 3000);
+            }
         }
-    }
+        function doLogout() { currentUser = null; document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('appContainer').style.display = 'none'; }
 
-    async function salvarEdicaoCliente() {
-        const id = document.getElementById('editClienteId').value;
-        await clientesRef.doc(id).update({
-            razao_social: document.getElementById('editClienteRazao').value,
-            cnpj: document.getElementById('editClienteCnpj').value,
-            segmento: document.getElementById('editClienteSegmento').value,
-            contato: document.getElementById('editClienteContato').value,
-            telefone: document.getElementById('editClienteTelefone').value,
-            email: document.getElementById('editClienteEmail').value,
-            limite_credito: parseFloat(document.getElementById('editClienteLimite').value) || 0,
-            status: document.getElementById('editClienteStatus').value
-        });
-        await carregarClientes();
-        loadClientes();
-        loadSelects();
-        fecharModal('modalCliente');
-        alert('Cliente atualizado!');
-    }
+        async function carregarProximoId() {
+            const snap = await clientesRef.orderBy('cliente_numero', 'desc').limit(1).get();
+            if (!snap.empty) proximoIdCliente = snap.docs[0].data().cliente_numero + 1;
+        }
+        async function carregarClientes() { const snap = await clientesRef.orderBy('cliente_numero').get(); clientesList = snap.docs.map(d => ({ id: d.id, ...d.data() })); clientesFiltrados = [...clientesList]; }
+        async function carregarVendas() { const snap = await vendasRef.orderBy('data_venda', 'desc').get(); vendasList = snap.docs.map(d => ({ id: d.id, ...d.data() })); vendasFiltradas = [...vendasList]; }
+        async function carregarContas() { const snap = await contasRef.orderBy('data_previsao_pagamento').get(); contasList = snap.docs.map(d => ({ id: d.id, ...d.data() })); contasFiltradas = [...contasList]; }
+        async function carregarTudo() { await Promise.all([carregarClientes(), carregarVendas(), carregarContas()]); loadClientes(); loadSelects(); loadVendas(); loadContas(); carregarFiltrosDRE(); calcularMargem(); changePage('clientes'); }
+        async function inicializarSistema() { await carregarProximoId(); await carregarTudo(); document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Online'; document.getElementById('vendaData').value = new Date().toISOString().split('T')[0]; document.getElementById('contaDataPagamento').value = new Date().toISOString().split('T')[0]; document.getElementById('filtroVendaInicio').value = new Date(new Date().setDate(1)).toISOString().split('T')[0]; document.getElementById('filtroVendaFim').value = new Date().toISOString().split('T')[0]; }
 
-    async function excluirCliente(id) {
-        if (confirm('Tem certeza que deseja excluir este cliente?')) {
-            await clientesRef.doc(id).delete();
+        function changePage(p) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(`page-${p}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.querySelector(`.nav-item[data-page="${p}"]`).classList.add('active');
+            if (p === 'clientes') loadClientes();
+            if (p === 'vendas') { carregarFiltrosVenda(); loadVendas(); }
+            if (p === 'contas') { carregarFiltrosConta(); loadContas(); }
+            if (p === 'contaCorrente') carregarCC();
+            if (p === 'medias') loadMedias();
+            if (p === 'dre') { carregarFiltrosDRE(); calcularDRE(); }
+        }
+        document.querySelectorAll('.nav-item').forEach(nav => nav.addEventListener('click', () => changePage(nav.getAttribute('data-page'))));
+
+        // CLIENTES
+        async function salvarCliente() {
+            const cliente = { cliente_numero: proximoIdCliente++, razao_social: document.getElementById('clienteRazao').value || 'Sem nome', cnpj: document.getElementById('clienteCnpj').value, segmento: document.getElementById('clienteSegmento').value, contato: document.getElementById('clienteContato').value, telefone: document.getElementById('clienteTelefone').value, email: document.getElementById('clienteEmail').value, limite_credito: parseFloat(document.getElementById('clienteLimite').value) || 0, status: document.getElementById('clienteStatus').value, created_at: new Date().toISOString() };
+            await clientesRef.add(cliente);
             await carregarClientes();
             loadClientes();
             loadSelects();
+            document.getElementById('clienteRazao').value = '';
+            alert('Cliente cadastrado!');
         }
-    }
-
-    function filtrarClientes() {
-        const termo = document.getElementById('buscarCliente').value.toLowerCase();
-        clientesFiltrados = clientesList.filter(c => 
-            c.razao_social.toLowerCase().includes(termo) || 
-            (c.cnpj && c.cnpj.includes(termo))
-        );
-        loadClientes();
-    }
-
-    function loadClientes() {
-        if (clientesFiltrados.length === 0) {
-            document.getElementById('clientesTable').innerHTML = '<p style="text-align:center; padding: 20px;">Nenhum cliente cadastrado.</p>';
-            return;
+        function editarCliente(num, id) { const c = clientesList.find(cl => cl.id === id); if(c) { document.getElementById('editClienteId').value = c.cliente_numero; document.getElementById('editClienteFirebaseId').value = c.id; document.getElementById('editClienteRazao').value = c.razao_social; document.getElementById('editClienteCnpj').value = c.cnpj||''; document.getElementById('editClienteSegmento').value = c.segmento||''; document.getElementById('editClienteContato').value = c.contato||''; document.getElementById('editClienteTelefone').value = c.telefone||''; document.getElementById('editClienteEmail').value = c.email||''; document.getElementById('editClienteLimite').value = c.limite_credito||0; document.getElementById('editClienteStatus').value = c.status; document.getElementById('modalCliente').style.display = 'flex'; } }
+        async function salvarEdicaoCliente() { const id = document.getElementById('editClienteFirebaseId').value; await clientesRef.doc(id).update({ razao_social: document.getElementById('editClienteRazao').value, cnpj: document.getElementById('editClienteCnpj').value, segmento: document.getElementById('editClienteSegmento').value, contato: document.getElementById('editClienteContato').value, telefone: document.getElementById('editClienteTelefone').value, email: document.getElementById('editClienteEmail').value, limite_credito: parseFloat(document.getElementById('editClienteLimite').value)||0, status: document.getElementById('editClienteStatus').value }); await carregarClientes(); loadClientes(); loadSelects(); fecharModal('modalCliente'); alert('Atualizado!'); }
+        async function excluirCliente(id) { if(confirm('Excluir cliente?')) { await clientesRef.doc(id).delete(); await carregarClientes(); loadClientes(); loadSelects(); } }
+        function filtrarClientes() { const t = document.getElementById('buscarCliente').value.toLowerCase(); clientesFiltrados = clientesList.filter(c => c.razao_social.toLowerCase().includes(t) || (c.cnpj && c.cnpj.includes(t))); loadClientes(); }
+        function ordenarClientes(col) { ordenacaoClientes = { coluna: col, ordem: ordenacaoClientes.coluna === col && ordenacaoClientes.ordem === 'asc' ? 'desc' : 'asc' }; clientesFiltrados.sort((a,b) => { let va = a[col]||'', vb = b[col]||''; if(col === 'cliente_numero') return ordenacaoClientes.ordem === 'asc' ? va - vb : vb - va; return ordenacaoClientes.ordem === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va)); }); loadClientes(); }
+        function loadClientes() {
+            if(!clientesFiltrados.length) { document.getElementById('clientesTable').innerHTML = '<p style="padding:20px;text-align:center">Nenhum cliente</p>'; return; }
+            let html = '<table class="data-table"><thead><tr><th onclick="ordenarClientes(\'cliente_numero\')">Código</th><th onclick="ordenarClientes(\'razao_social\')">Razão Social</th><th onclick="ordenarClientes(\'cnpj\')">CNPJ</th><th onclick="ordenarClientes(\'segmento\')">Segmento</th><th>Contato</th><th onclick="ordenarClientes(\'limite_credito\')">Limite</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+            clientesFiltrados.forEach(c => { html += `<tr><td>${c.cliente_numero}</td><td><strong>${c.razao_social}</strong></td><td>${c.cnpj||'-'}</td><td>${c.segmento||'-'}</td><td>${c.contato||'-'}<br><small>${c.telefone||''}</small></td><td>${formatMoney(c.limite_credito)}</td><td><span class="badge badge-active">${c.status}</span></td><td class="action-buttons"><button class="btn-icon btn-edit" onclick="editarCliente(${c.cliente_numero},'${c.id}')">Editar</button><button class="btn-icon btn-delete" onclick="excluirCliente('${c.id}')">Excluir</button></td></tr>`; });
+            html += '</tbody></table>';
+            document.getElementById('clientesTable').innerHTML = html;
         }
-        
-        let html = '<div class="data-table"><table><thead><tr>';
-        html += '<th>ID</th><th>Razão Social</th><th>CNPJ</th><th>Segmento</th><th>Contato</th><th>Limite</th><th>Status</th><th>Ações</th>';
-        html += '</tr></thead><tbody>';
-        
-        clientesFiltrados.forEach(c => {
-            html += `<tr>
-                <td>${c.id.slice(0, 8)}...</td>
-                <td><strong>${c.razao_social}</strong></td>
-                <td>${c.cnpj || '-'}</td>
-                <td>${c.segmento || '-'}</td>
-                <td>${c.contato || '-'}<br><small>${c.telefone || ''}</small></td>
-                <td>${formatMoney(c.limite_credito)}</
 
-td>
-                <td><span class="badge badge-active">${c.status}</span></td>
-                <td class="action-buttons">
-                    <button class="btn-icon btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i> Editar</button>
-                    <button class="btn-icon btn-delete" onclick="excluirCliente('${c.id}')"><i class="fas fa-trash"></i> Excluir</button>
-                </
-
-td>
-            </tr>`;
-        });
-        html += '</tbody>}</div>';
-        document.getElementById('clientesTable').innerHTML = html;
-    }
-
-    // ==================== VENDAS ====================
-    function calcularMargem() {
-        const vol = parseFloat(document.getElementById('vendaVolume').value) || 0;
-        const pc = parseFloat(document.getElementById('vendaPrecoCompra').value) || 0;
-        const pv = parseFloat(document.getElementById('vendaPrecoVenda').value) || 0;
-        const totalCompra = vol * pc;
-        const totalVenda = vol * pv;
-        const margem = totalVenda - totalCompra;
-        const percentual = totalVenda > 0 ? (margem / totalVenda * 100) : 0;
-        document.getElementById('vendaResumo').innerHTML = `
-            <strong>Valor Compra:</strong> ${formatMoney(totalCompra)}<br>
-            <strong>Valor Venda:</strong> ${formatMoney(totalVenda)}<br>
-            <strong>Margem:</strong> ${formatMoney(margem)} (${percentual.toFixed(1)}%)
-        `;
-    }
-
-    async function salvarVenda() {
-        const clienteId = document.getElementById('vendaCliente').value;
-        if (!clienteId) { alert('Selecione um cliente!'); return; }
-        
-        const volume = parseFloat(document.getElementById('vendaVolume').value) || 0;
-        const precoCompra = parseFloat(document.getElementById('vendaPrecoCompra').value) || 0;
-        const precoVenda = parseFloat(document.getElementById('vendaPrecoVenda').value) || 0;
-        const valorCompra = volume * precoCompra;
-        const valorVenda = volume * precoVenda;
-        
-        const venda = {
-            cliente_id: clienteId,
-            combustivel: document.getElementById('vendaCombustivel').value,
-            data_venda: document.getElementById('vendaData').value || new Date().toISOString().split('T')[0],
-            volume: volume,
-            preco_compra: precoCompra,
-            preco_venda: precoVenda,
-            valor_compra: valorCompra,
-            valor_venda: valorVenda,
-            margem: valorVenda - valorCompra,
-            forma_pagamento: document.getElementById('vendaFormaPagamento').value,
-            observacao: document.getElementById('vendaObservacao').value,
-            created_at: new Date().toISOString()
-        };
-        
-        const vendaDoc = await vendasRef.add(venda);
-        
-        const dias = { 'À vista': 0, '15 dias': 15, '30 dias': 30, '60 dias': 60 };
-        const dataPrevisao = new Date(venda.data_venda);
-        dataPrevisao.setDate(dataPrevisao.getDate() + dias[venda.forma_pagamento]);
-        
-        const conta = {
-            venda_id: vendaDoc.id,
-            cliente_id: clienteId,
-            data_abastecimento: venda.data_venda,
-            data_previsao_pagamento: dataPrevisao.toISOString().split('T')[0],
-            valor_original: valorVenda,
-            valor_pago: 0,
-            saldo_devedor: valorVenda,
-            status: 'A vencer',
-            observacao: venda.observacao,
-            created_at: new Date().toISOString()
-        };
-        
-        await contasRef.add(conta);
-        await carregarTudo();
-        alert(`Venda registrada! ${formatMoney(valorVenda)}`);
-        
-        document.getElementById('vendaVolume').value = 0;
-        document.getElementById('vendaPrecoCompra').value = 0;
-        document.getElementById('vendaPrecoVenda').value = 0;
-        document.getElementById('vendaObservacao').value = '';
-        calcularMargem();
-    }
-
-    function carregarFiltrosVenda() {
-        vendasFiltradas = [...vendasList];
-        const clienteId = document.getElementById('filtroVendaCliente').value;
-        const inicio = document.getElementById('filtroVendaInicio').value;
-        const fim = document.getElementById('filtroVendaFim').value;
-        
-        if (clienteId) vendasFiltradas = vendasFiltradas.filter(v => v.cliente_id === clienteId);
-        if (inicio) vendasFiltradas = vendasFiltradas.filter(v => v.data_venda >= inicio);
-        if (fim) vendasFiltradas = vendasFiltradas.filter(v => v.data_venda <= fim);
-    }
-
-    function filtrarVendas() {
-        carregarFiltrosVenda();
-        loadVendas();
-    }
-
-    function loadVendas() {
-        if (vendasFiltradas.length === 0) {
-            document.getElementById('vendasTable').innerHTML = '<p style="text-align:center; padding: 20px;">Nenhuma venda registrada.</p>';
-            return;
+        // VENDAS
+        function calcularMargem() { const v=parseFloat(document.getElementById('vendaVolume').value)||0, pc=parseFloat(document.getElementById('vendaPrecoCompra').value)||0, pv=parseFloat(document.getElementById('vendaPrecoVenda').value)||0; document.getElementById('vendaResumo').innerHTML = `<strong>Compra:</strong> ${formatMoney(v*pc)}<br><strong>Venda:</strong> ${formatMoney(v*pv)}<br><strong>Margem:</strong> ${formatMoney(v*pv - v*pc)} (${v*pv>0?((v*pv - v*pc)/(v*pv)*100).toFixed(1):0}%)`; }
+        async function salvarVenda() {
+            const cid = document.getElementById('vendaCliente').value; if(!cid) { alert('Selecione cliente'); return; }
+            const venda = { cliente_id: cid, combustivel: document.getElementById('vendaCombustivel').value, data_venda: document.getElementById('vendaData').value || new Date().toISOString().split('T')[0], volume: parseFloat(document.getElementById('vendaVolume').value)||0, preco_compra: parseFloat(document.getElementById('vendaPrecoCompra').value)||0, preco_venda: parseFloat(document.getElementById('vendaPrecoVenda').value)||0, valor_compra: (parseFloat(document.getElementById('vendaVolume').value)||0)*(parseFloat(document.getElementById('vendaPrecoCompra').value)||0), valor_venda: (parseFloat(document.getElementById('vendaVolume').value)||0)*(parseFloat(document.getElementById('vendaPrecoVenda').value)||0), forma_pagamento: document.getElementById('vendaFormaPagamento').value, observacao: document.getElementById('vendaObservacao').value, created_at: new Date().toISOString() };
+            venda.margem = venda.valor_venda - venda.valor_compra;
+            const doc = await vendasRef.add(venda);
+            const dias = { 'À vista':0, '15 dias':15, '30 dias':30, '60 dias':60 };
+            const previsao = new Date(venda.data_venda); previsao.setDate(previsao.getDate() + dias[venda.forma_pagamento]);
+            await contasRef.add({ venda_id: doc.id, cliente_id: cid, data_abastecimento: venda.data_venda, data_previsao_pagamento: previsao.toISOString().split('T')[0], valor_original: venda.valor_venda, valor_pago: 0, saldo_devedor: venda.valor_venda, status: 'A vencer', observacao: venda.observacao });
+            await carregarVendas(); await carregarContas(); alert('Venda registrada!'); loadVendas(); loadContas();
         }
-        
-        let html = '<div class="data-table"><table><thead><tr>';
-        html += '<th>Data</th><th>Cliente</th><th>Combustível</th><th>Volume (L)</th><th>Preço Compra</th><th>Preço Venda</th><th>Valor Venda</th><th>Margem</th><th>Pagamento</th>';
-        html += '</tr></thead><tbody>';
-        
-        vendasFiltradas.forEach(v => {
-            const c = clientesList.find(cl => cl.id === v.cliente_id);
-            html += `<table>
-                <td>${formatDate(v.data_venda)}</
+        function carregarFiltrosVenda() { vendasFiltradas = [...vendasList]; const cid=document.getElementById('filtroVendaCliente').value, inicio=document.getElementById('filtroVendaInicio').value, fim=document.getElementById('filtroVendaFim').value; if(cid) vendasFiltradas = vendasFiltradas.filter(v=>v.cliente_id===cid); if(inicio) vendasFiltradas = vendasFiltradas.filter(v=>v.data_venda>=inicio); if(fim) vendasFiltradas = vendasFiltradas.filter(v=>v.data_venda<=fim); }
+        function filtrarVendas() { carregarFiltrosVenda(); loadVendas(); }
+        function ordenarVendas(col) { ordenacaoVendas = { coluna: col, ordem: ordenacaoVendas.coluna === col && ordenacaoVendas.ordem === 'asc' ? 'desc' : 'asc' }; vendasFiltradas.sort((a,b)=>{ if(col==='data_venda') return ordenacaoVendas.ordem==='asc' ? new Date(a.data_venda)-new Date(b.data_venda) : new Date(b.data_venda)-new Date(a.data_venda); if(col==='valor_venda'||col==='volume') return ordenacaoVendas.ordem==='asc' ? (a[col]||0)-(b[col]||0) : (b[col]||0)-(a[col]||0); return ordenacaoVendas.ordem==='asc' ? String(a[col]||'').localeCompare(String(b[col]||'')) : String(b[col]||'').localeCompare(String(a[col]||'')); }); loadVendas(); }
+        function loadVendas() {
+            if(!vendasFiltradas.length) { document.getElementById('vendasTable').innerHTML = '<p style="padding:20px;text-align:center">Nenhuma venda</p>'; return; }
+            let html = '<table class="data-table"><thead><tr><th onclick="ordenarVendas(\'data_venda\')">Data</th><th>Cliente</th><th>Combustível</th><th onclick="ordenarVendas(\'volume\')">Volume</th><th>Preço Compra</th><th>Preço Venda</th><th onclick="ordenarVendas(\'valor_venda\')">Valor</th><th onclick="ordenarVendas(\'margem\')">Margem</th><th>Pagamento</th></tr></thead><tbody>';
+            vendasFiltradas.forEach(v => { const c = clientesList.find(cl=>cl.id===v.cliente_id); html += `<tr><td>${formatDate(v.data_venda)}</td><td><strong>${c?c.razao_social:'-'}</strong></td><td>${v.combustivel}</td><td>${v.volume.toLocaleString()}L</td><td>${formatMoney(v.preco_compra)}/L</td><td>${formatMoney(v.preco_venda)}/L</td><td>${formatMoney(v.valor_venda)}</td><td style="color:${v.margem>0?'green':'red'}">${formatMoney(v.margem)}</td><td>${v.forma_pagamento}</td></tr>`; });
+            html += '</tbody></table>';
+            document.getElementById('vendasTable').innerHTML = html;
+        }
 
-td>
-                <td><strong>${c ? c.razao_social : '-'}</strong></td>
-                <td>${v.combustivel}</td>
-                <td>${v.volume.toLocaleString()}</td>
-                <td>${formatMoney(v.preco_compra)}/L</
+        // CONTAS
+        async function confirmarRecebimento() {
+            const cid = document.getElementById('contaReceberSelect').value, val = parseFloat(document.getElementById('contaValorRecebido').value)||0;
+            if(!cid||val<=0) { alert('Selecione conta e valor!'); return; }
+            const conta = contasList.find(c=>c.id===cid);
+            if(conta) { const np = conta.valor_pago+val, ns = conta.valor_original-np; await contasRef.doc(cid).update({ valor_pago: np, saldo_devedor: ns, status: ns<=0?'Pago':'Parcial', data_pagamento_real: document.getElementById('contaDataPagamento').value||new Date().toISOString().split('T')[0] }); await carregarContas(); loadContas(); loadSelects(); alert(`Recebido ${formatMoney(val)}! Saldo: ${formatMoney(ns)}`); }
+        }
+        async function editarConta(id) { const c = contasList.find(c=>c.id===id); if(c) { document.getElementById('editContaId').value=c.id; document.getElementById('editContaValor').value=c.valor_original; document.getElementById('editContaPago').value=c.valor_pago; document.getElementById('editContaPrevisao').value=c.data_previsao_pagamento; document.getElementById('editContaStatus').value=c.status; document.getElementById('modalConta').style.display='flex'; } }
+        async function salvarEdicaoConta() { const id = document.getElementById('editContaId').value, nv=parseFloat(document.getElementById('editContaValor').value)||0, np=parseFloat(document.getElementById('editContaPago').value)||0; await contasRef.doc(id).update({ valor_original: nv, valor_pago: np, saldo_devedor: nv-np, data_previsao_pagamento: document.getElementById('editContaPrevisao').value, status: document.getElementById('editContaStatus').value }); await carregarContas(); loadContas(); fecharModal('modalConta'); alert('Conta atualizada!'); }
+        async function excluirConta(id) { if(confirm('Excluir conta?')) { await contasRef.doc(id).delete(); await carregarContas(); loadContas(); } }
+        function carregarFiltrosConta() { contasFiltradas = [...contasList]; const cid=document.getElementById('filtroContaCliente').value, st=document.getElementById('filtroContaStatus').value, inicio=document.getElementById('filtroContaInicio').value, fim=document.getElementById('filtroContaFim').value; if(cid) contasFiltradas = contasFiltradas.filter(c=>c.cliente_id===cid); if(st) contasFiltradas = contasFiltradas.filter(c=>c.status===st); if(inicio) contasFiltradas = contasFiltradas.filter(c=>c.data_previsao_pagamento>=inicio); if(fim) contasFiltradas = contasFiltradas.filter(c=>c.data_previsao_pagamento<=fim); }
+        function filtrarContas() { carregarFiltrosConta(); loadContas(); }
+        function ordenarContas(col) { ordenacaoContas = { coluna: col, ordem: ordenacaoContas.coluna === col && ordenacaoContas.ordem === 'asc' ? 'desc' : 'asc' }; contasFiltradas.sort((a,b)=>{ if(col==='data_previsao_pagamento') return ordenacaoContas.ordem==='asc' ? new Date(a.data_previsao_pagamento)-new Date(b.data_previsao_pagamento) : new Date(b.data_previsao_pagamento)-new Date(a.data_previsao_pagamento); if(col==='valor_original'||col==='saldo_devedor') return ordenacaoContas.ordem==='asc' ? (a[col]||0)-(b[col]||0) : (b[col]||0)-(a[col]||0); return ordenacaoContas.ordem==='asc' ? String(a[col]||'').localeCompare(String(b[col]||'')) : String(b[col]||'').localeCompare(String(a[col]||'')); }); loadContas(); }
+        function loadContas() {
+            if(!contasFiltradas.length) { document.getElementById('contasTable').innerHTML = '<p style="padding:20px;text-align:center">Nenhuma conta</p>'; document.getElementById('resumoContasCliente').innerHTML=''; return; }
+            let html = '<table class="data-table"><thead><tr><th>Cliente</th><th>Data Abast.</th><th onclick="ordenarContas(\'data_previsao_pagamento\')">Previsão</th><th onclick="ordenarContas(\'valor_original\')">Valor</th><th>Pago</th><th onclick="ordenarContas(\'saldo_devedor\')">Saldo</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+            const hoje = new Date();
+            contasFiltradas.forEach(c => { const cli = clientesList.find(cl=>cl.id===c.cliente_id); const prev = new Date(c.data_previsao_pagamento); let cls = 'badge-vencer'; if(c.status==='Pago') cls='badge-pago'; else if(c.status==='Parcial') cls='badge-parcial'; else if(prev<hoje) cls='badge-vencido'; html += `<tr><td><strong>${cli?cli.razao_social:'-'}</strong></td><td>${formatDate(c.data_abastecimento)}</td><td>${formatDate(c.data_previsao_pagamento)}</td><td>${formatMoney(c.valor_original)}</td><td>${formatMoney(c.valor_pago)}</td><td><strong>${formatMoney(c.saldo_devedor)}</strong></td><td><span class="badge ${cls}">${c.status}</span></td><td class="action-buttons"><button class="btn-icon btn-edit" onclick="editarConta('${c.id}')">Editar</button><button class="btn-icon btn-delete" onclick="excluirConta('${c.id}')">Excluir</button></td></tr>`; });
+            html += '</tbody></table>';
+            document.getElementById('contasTable').innerHTML = html;
+            const resumo = {};
+            contasList.forEach(c => { if(!resumo[c.cliente_id]) resumo[c.cliente_id]={total:0,pago:0,saldo:0}; resumo[c.cliente_id].total+=c.valor_original; resumo[c.cliente_id].pago+=c.valor_pago; resumo[c.cliente_id].saldo+=c.saldo_devedor; });
+            let rh = '<div class="resumo-card">';
+            for(const [id, d] of Object.entries(resumo)) { const cli = clientesList.find(c=>c.id===id); rh += `<div class="resumo-cliente"><span><strong>${cli?cli.razao_social:'-'}</strong></span><span>Total: ${formatMoney(d.total)}</span><span>Pago: ${formatMoney(d.pago)}</span><span style="color:${d.saldo>0?'red':'green'}">Saldo: ${formatMoney(d.saldo)}</span></div>`; }
+            rh += '</div>'; document.getElementById('resumoContasCliente').innerHTML = rh;
+            const sel = document.getElementById('contaReceberSelect'); sel.innerHTML='<option value="">Selecione</option>';
+            contasList.filter(c=>c.status!=='Pago').forEach(c => { const cli = clientesList.find(cl=>cl.id===c.cliente_id); if(cli) sel.innerHTML += `<option value="${c.id}">${cli.razao_social} - ${formatMoney(c.saldo_devedor)}</option>`; });
+        }
 
-td>
-                <td>${formatMoney(v.preco_venda)}/L</
+        // CONTA CORRENTE
+        async function carregarCC() {
+            const cid = document.getElementById('ccCliente').value; if(!cid) return;
+            const periodo = document.getElementById('ccPeriodo').value; let dias = 9999; if(periodo==='Últimos 30 dias') dias=30; if(periodo==='Últimos 90 dias') dias=90;
+            const dataLimite = new Date(); dataLimite.setDate(dataLimite.getDate()-dias);
+            const vendasC = vendasList.filter(v=>v.cliente_id===cid && new Date(v.data_venda)>=dataLimite);
+            const pagC = contasList.filter(c=>c.cliente_id===cid && c.data_pagamento_real && new Date(c.data_pagamento_real)>=dataLimite);
+            const extrato = []; vendasC.forEach(v=>extrato.push({data:v.data_venda,tipo:'Venda',doc:v.observacao||'-',debito:v.valor_venda,credito:0})); pagC.forEach(p=>extrato.push({data:p.data_pagamento_real,tipo:'Pagamento',doc:p.observacao||'-',debito:0,credito:p.valor_pago}));
+            extrato.sort((a,b)=>new Date(a.data)-new Date(b.data)); let saldo=0; extrato.forEach(e=>{saldo+=e.debito-e.credito; e.saldo=saldo;});
+            const cliente = clientesList.find(c=>c.id===cid); const saldoAtual = contasList.filter(c=>c.cliente_id===cid).reduce((s,c)=>s+c.saldo_devedor,0);
+            document.getElementById('ccResumoCliente').innerHTML = `<div class="grid-2"><div class="metric-card"><div class="metric-value">${cliente?cliente.razao_social:'-'}</div><div class="metric-label">Cliente</div></div><div class="metric-card"><div class="metric-value" style="color:${saldoAtual>(cliente?.limite_credito||0)?'red':'green'}">${formatMoney(saldoAtual)}</div><div class="metric-label">Saldo Atual</div></div></div>`;
+            if(!extrato.length) { document.getElementById('ccExtrato').innerHTML='<p>Sem movimentos</p>'; return; }
+            let eh='<table class="data-table"><thead><tr><th>Data</th><th>Tipo</th><th>Documento</th><th>Débito</th><th>Crédito</th><th>Saldo</th></tr></thead><tbody>';
+            extrato.forEach(e=>{ eh+=`<tr><td>${formatDate(e.data)}</td><td><span class="badge ${e.tipo==='Venda'?'badge-vencido':'badge-pago'}">${e.tipo}</span></td><td>${e.doc}</td><td>${e.debito>0?formatMoney(e.debito):'-'}</td><td>${e.credito>0?formatMoney(e.credito):'-'}</td><td><strong>${formatMoney(e.saldo)}</strong></td></tr>`; });
+            eh+='</tbody></table>'; document.getElementById('ccExtrato').innerHTML=eh;
+            const ctx = document.getElementById('ccChart').getContext('2d'); if(window.ccChart) window.ccChart.destroy(); window.ccChart=new Chart(ctx,{type:'line',data:{labels:extrato.map(e=>formatDate(e.data)),datasets:[{label:'Saldo',data:extrato.map(e=>e.saldo),borderColor:'#1a237e',fill:true}]},options:{responsive:true}});
+        }
 
-td>
-                <td>${formatMoney(v.valor_venda)}</
-
-td>
-                <td style="color: ${v.margem > 0 ? '#28a745' : '#dc3545'}">${formatMoney(v.margem)}</
-
-td>
-                <td>${v.forma_pagamento}</
-
-td>
-            </tr>`;
-        });
-        html += '</tbody>}</div>';
-        document.getElementById('vendasTable').innerHTML = html;
-    }
-
-    // ==================== CONTAS A RECEBER ====================
-    async function confirmarRecebimento() {
-        const contaId = document.getElementById('contaReceberSelect').value;
-        const valor = parseFloat(document.getElementById('contaValorRecebido').value) || 0;
-        if (!contaId || valor <= 0) { alert('Selecione conta e informe valor!'); return; }
-        
-        const conta = contasList.find(c => c.id === contaId);
-        if (conta) {
-            const novoPago = conta.valor_pago + valor;
-            const novoSaldo = conta.valor_original - novoPago;
+        // MÉDIA PONDERADA COM TOTAL GERAL
+        function loadMedias() {
+            const combustiveis = ['Marítimo', 'S-10', 'S-500'];
+            let cardsHtml = '';
+            let totalVolumeGeral = 0, totalValorGeral = 0, totalCompraGeral = 0, totalMargemGeral = 0;
             
-            await contasRef.doc(contaId).update({
-                valor_pago: novoPago,
-                saldo_devedor: novoSaldo,
-                status: novoSaldo <= 0 ? 'Pago' : 'Parcial',
-                data_pagamento_real: document.getElementById('contaDataPagamento').value || new Date().toISOString().split('T')[0]
+            combustiveis.forEach(comb => {
+                const vendasComb = vendasList.filter(v => v.combustivel === comb);
+                const totalVolume = vendasComb.reduce((s, v) => s + v.volume, 0);
+                const totalValor = vendasComb.reduce((s, v) => s + v.valor_venda, 0);
+                const totalCompra = vendasComb.reduce((s, v) => s + v.valor_compra, 0);
+                const precoMedio = totalVolume > 0 ? totalValor / totalVolume : 0;
+                const margemTotal = totalValor - totalCompra;
+                const margemPercentual = totalValor > 0 ? (margemTotal / totalValor * 100) : 0;
+                
+                totalVolumeGeral += totalVolume;
+                totalValorGeral += totalValor;
+                totalCompraGeral += totalCompra;
+                totalMargemGeral += margemTotal;
+                
+                cardsHtml += `
+                    <div class="card">
+                        <h3>${comb}</h3>
+                        <p><strong>💰 Preço médio venda:</strong> ${precoMedio > 0 ? formatMoney(precoMedio) : 'R$ 0,00'}/L</p>
+                        <p><strong>📦 Volume vendido:</strong> ${totalVolume.toLocaleString()} L</p>
+                        <p><strong>📊 Margem total:</strong> ${formatMoney(margemTotal)} (${margemPercentual.toFixed(1)}%)</p>
+                    </div>
+                `;
             });
             
-            await carregarContas();
-            loadContas();
-            loadSelects();
-            document.getElementById('contaValorRecebido').value = 0;
-            alert(`Recebido ${formatMoney(valor)}! Saldo: ${formatMoney(novoSaldo)}`);
-        }
-    }
-
-    async function editarConta(id) {
-        const conta = contasList.find(c => c.id === id);
-        if (conta) {
-            document.getElementById('editContaId').value = conta.id;
-            document.getElementById('editContaValor').value = conta.valor_original;
-            document.getElementById('editContaPago').value = conta.valor_pago;
-            document.getElementById('editContaPrevisao').value = conta.data_previsao_pagamento;
-            document.getElementById('editContaStatus').value = conta.status;
-            document.getElementById('modalConta').style.display = 'flex';
-        }
-    }
-
-    async function salvarEdicaoConta() {
-        const id = document.getElementById('editContaId').value;
-        const novoValor = parseFloat(document.getElementById('editContaValor').value) || 0;
-        const novoPago = parseFloat(document.getElementById('editContaPago').value) || 0;
-        
-        await contasRef.doc(id).update({
-            valor_original: novoValor,
-            valor_pago: novoPago,
-            saldo_devedor: novoValor - novoPago,
-            data_previsao_pagamento: document.getElementById('editContaPrevisao').value,
-            status: document.getElementById('editContaStatus').value
-        });
-        
-        await carregarContas();
-        loadContas();
-        fecharModal('modalConta');
-        alert('Conta atualizada!');
-    }
-
-    async function excluirConta(id) {
-        if (confirm('Tem certeza que deseja excluir esta conta?')) {
-            await contasRef.doc(id).delete();
-            await carregarContas();
-            loadContas();
-        }
-    }
-
-    function carregarFiltrosConta() {
-        contasFiltradas = [...contasList];
-        const clienteId = document.getElementById('filtroContaCliente').value;
-        const status = document.getElementById('filtroContaStatus').value;
-        const inicio = document.getElementById('filtroContaInicio').value;
-        const fim = document.getElementById('filtroContaFim').value;
-        
-        if (clienteId) contasFiltradas = contasFiltradas.filter(c => c.cliente_id === clienteId);
-        if (status) contasFiltradas = contasFiltradas.filter(c => c.status === status);
-        if (inicio) contasFiltradas = contasFiltradas.filter(c => c.data_previsao_pagamento >= inicio);
-        if (fim) contasFiltradas = contasFiltradas.filter(c => c.data_previsao_pagamento <= fim);
-    }
-
-    function filtrarContas() {
-        carregarFiltrosConta();
-        loadContas();
-    }
-
-    function loadContas() {
-        if (contasFiltradas.length === 0) {
-            document.getElementById('contasTable').innerHTML = '<p style="text-align:center; padding: 20px;">Nenhuma conta a receber.</p>';
-            document.getElementById('resumoContasCliente').innerHTML = '';
-            return;
-        }
-        
-        let html = '<div class="data-table"></table><thead><tr>';
-        html += '<th>Cliente</th><th>Data Abast.</th><th>Previsão</th><th>Valor</th><th>Pago</th><th>Saldo</th><th>Status</th><th>Ações</th>';
-        html += '</tr></thead><tbody>';
-        
-        const hoje = new Date();
-        contasFiltradas.forEach(c => {
-            const cli = clientesList.find(cl => cl.id === c.cliente_id);
-            const previsao = new Date(c.data_previsao_pagamento);
-            let statusClass = 'badge-vencer';
-            if (c.status === 'Pago') statusClass = 'badge-pago';
-            else if (c.status === 'Parcial') statusClass = 'badge-parcial';
-            else if (previsao < hoje) statusClass = 'badge-vencido';
-            
-            html += `<table>
-                <td><strong>${cli ? cli.razao_social : '-'}</strong></td>
-                <td>${formatDate(c.data_abastecimento)}</
-
-td>
-                <td>${formatDate(c.data_previsao_pagamento)}</
-
-td>
-                <td>${formatMoney(c.valor_original)}</
-
-td>
-                <td>${formatMoney(c.valor_pago)}</
-
-td>
-                <td><strong>${formatMoney(c.saldo_devedor)}</strong></
-
-td>
-                <td><span class="badge ${statusClass}">${c.status}</span></
-
-td>
-                <td class="action-buttons">
-                    <button class="btn-icon btn-edit" onclick="editarConta('${c.id}')"><i class="fas fa-edit"></i> Editar</button>
-                    <button class="btn-icon btn-delete" onclick="excluirConta('${c.id}')"><i class="fas fa-trash"></i> Excluir</button>
-                </
-
-td>
-            </tr>`;
-        });
-        html += '</tbody>}</div>';
-        document.getElementById('contasTable').innerHTML = html;
-        
-        const resumo = {};
-        contasList.forEach(c => {
-            if (!resumo[c.cliente_id]) resumo[c.cliente_id] = { total: 0, pago: 0, saldo: 0 };
-            resumo[c.cliente_id].total += c.valor_original;
-            resumo[c.cliente_id].pago += c.valor_pago;
-            resumo[c.cliente_id].saldo += c.saldo_devedor;
-        });
-        
-        let resumoHtml = '<div class="resumo-card">';
-        for (const [clienteId, dados] of Object.entries(resumo)) {
-            const cli = clientesList.find(c => c.id === clienteId);
-            resumoHtml += `
-                <div class="resumo-cliente">
-                    <span><strong>${cli ? cli.razao_social : '-'}</strong></span>
-                    <span>Total: ${formatMoney(dados.total)}</span>
-                    <span>Pago: ${formatMoney(dados.pago)}</span>
-                    <span style="color: ${dados.saldo > 0 ? '#dc3545' : '#28a745'}">Saldo: ${formatMoney(dados.saldo)}</span>
-                </div>
-            `;
-        }
-        resumoHtml += '</div>';
-        document.getElementById('resumoContasCliente').innerHTML = resumoHtml;
-        
-        const select = document.getElementById('contaReceberSelect');
-        select.innerHTML = '<option value="">Selecione</option>';
-        contasList.filter(c => c.status !== 'Pago').forEach(c => {
-            const cli = clientesList.find(cl => cl.id === c.cliente_id);
-            if (cli) select.innerHTML += `<option value="${c.id}">${cli.razao_social} - ${formatMoney(c.saldo_devedor)}</option>`;
-        });
-    }
-
-    // ==================== CONTA CORRENTE ====================
-    async function carregarCC() {
-        const clienteId = document.getElementById('ccCliente').value;
-        if (!clienteId) return;
-        
-        const periodo = document.getElementById('ccPeriodo').value;
-        let dias = 9999;
-        if (periodo === 'Últimos 30 dias') dias = 30;
-        if (periodo === 'Últimos 90 dias') dias = 90;
-        
-        const dataLimite = new Date();
-        dataLimite.setDate(dataLimite.getDate() - dias);
-        
-        const vendasCliente = vendasList.filter(v => v.cliente_id === clienteId && new Date(v.data_venda) >= dataLimite);
-        const pagamentosCliente = contasList.filter(c => c.cliente_id === clienteId && c.data_pagamento_real && new Date(c.data_pagamento_real) >= dataLimite);
-        
-        const extrato = [];
-        vendasCliente.forEach(v => extrato.push({ data: v.data_venda, tipo: 'Venda', documento: v.observacao || '-', debito: v.valor_venda, credito: 0 }));
-        pagamentosCliente.forEach(p => extrato.push({ data: p.data_pagamento_real, tipo: 'Pagamento', documento: p.observacao || '-', debito: 0, credito: p.valor_pago }));
-        extrato.sort((a, b) => new Date(a.data) - new Date(b.data));
-        
-        let saldo = 0;
-        extrato.forEach(item => { saldo += item.debito - item.credito; item.saldo = saldo; });
-        
-        const cliente = clientesList.find(c => c.id === clienteId);
-        const saldoAtual = contasList.filter(c => c.cliente_id === clienteId).reduce((sum, c) => sum + c.saldo_devedor, 0);
-        
-        document.getElementById('ccResumoCliente').innerHTML = `
-            <div class="grid-2">
-                <div class="metric-card"><div class="metric-value">${cliente ? cliente.razao_social : '-'}</div><div class="metric-label">Cliente</div></div>
-                <div class="metric-card"><div class="metric-value" style="color: ${saldoAtual > (cliente?.limite_credito || 0) ? '#dc3545' : '#28a745'}">${formatMoney(saldoAtual)}</div><div class="metric-label">Saldo Atual</div></div>
-            </div>
-        `;
-        
-        if (extrato.length === 0) {
-            document.getElementById('ccExtrato').innerHTML = '<p style="text-align:center; padding: 20px;">Nenhum movimento no período.</p>';
-            return;
-        }
-        
-        let extratoHtml = '<div class="data-table"></table><thead><tr>';
-        extratoHtml += '<th>Data</th><th>Tipo</th><th>Documento</th><th>Débito</th><th>Crédito</th><th>Saldo</th>';
-        extratoHtml += '</tr></thead><tbody>';
-        
-        extrato.forEach(item => {
-            extratoHtml += `<tr>
-                <td>${formatDate(item.data)}</
-
-td>
-                <td><span class="badge ${item.tipo === 'Venda' ? 'badge-vencido' : 'badge-pago'}">${item.tipo}</span></
-
-td>
-                <td>${item.documento}</
-
-td>
-                <td>${item.debito > 0 ? formatMoney(item.debito) : '-'}</
-
-td>
-                <td>${item.credito > 0 ? formatMoney(item.credito) : '-'}</
-
-td>
-                <td><strong>${formatMoney(item.saldo)}</strong></
-
-td>
-            </tr>`;
-        });
-        extratoHtml += '</tbody>}</div>';
-        document.getElementById('ccExtrato').innerHTML = extratoHtml;
-        
-        const ctx = document.getElementById('ccChart').getContext('2d');
-        if (window.ccChart) window.ccChart.destroy();
-        window.ccChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels: extrato.map(e => formatDate(e.data)), datasets: [{ label: 'Saldo', data: extrato.map(e => e.saldo), borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)', fill: true }] },
-            options: { responsive: true, maintainAspectRatio: true }
-        });
-    }
-
-    // ==================== MÉDIA PONDERADA ====================
-    function loadMedias() {
-        const combustiveis = ['Marítimo', 'S-10', 'S-500'];
-        let cardsHtml = '';
-        
-        combustiveis.forEach(comb => {
-            const vendasComb = vendasList.filter(v => v.combustivel === comb);
-            const totalVolume = vendasComb.reduce((s, v) => s + v.volume, 0);
-            const totalValor = vendasComb.reduce((s, v) => s + v.valor_venda, 0);
-            const totalCompra = vendasComb.reduce((s, v) => s + v.valor_compra, 0);
-            const precoMedio = totalVolume > 0 ? totalValor / totalVolume : 0;
-            const margemTotal = totalValor - totalCompra;
-            const margemPercentual = totalValor > 0 ? (margemTotal / totalValor * 100) : 0;
+            const precoMedioGeral = totalVolumeGeral > 0 ? totalValorGeral / totalVolumeGeral : 0;
+            const margemPercentualGeral = totalValorGeral > 0 ? (totalMargemGeral / totalValorGeral * 100) : 0;
             
             cardsHtml += `
-                <div class="card">
-                    <h3>${comb}</h3>
-                    <p><strong>💰 Preço médio venda:</strong> ${formatMoney(precoMedio)}/L</p>
-                    <p><strong>📦 Volume vendido:</strong> ${totalVolume.toLocaleString()} L</p>
-                    <p><strong>📊 Margem total:</strong> ${formatMoney(margemTotal)} (${margemPercentual.toFixed(1)}%)</p>
+                <div class="card" style="background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white;">
+                    <h3>📊 TOTAL GERAL</h3>
+                    <p><strong>💰 Preço médio venda:</strong> ${formatMoney(precoMedioGeral)}/L</p>
+                    <p><strong>📦 Volume total vendido:</strong> ${totalVolumeGeral.toLocaleString()} L</p>
+                    <p><strong>💵 Faturamento total:</strong> ${formatMoney(totalValorGeral)}</p>
+                    <p><strong>📈 Margem total:</strong> ${formatMoney(totalMargemGeral)} (${margemPercentualGeral.toFixed(1)}%)</p>
                 </div>
             `;
-        });
-        document.getElementById('mediasCards').innerHTML = cardsHtml || '<p>Nenhuma venda registrada.</p>';
-        
-        const totalVendasGeral = vendasList.reduce((s, v) => s + v.valor_venda, 0);
-        const totalCompraGeral = vendasList.reduce((s, v) => s + v.valor_compra, 0);
-        const totalMargemGeral = totalVendasGeral - totalCompraGeral;
-        const totalVolumeGeral = vendasList.reduce((s, v) => s + v.volume, 0);
-        
-        const markup = vendasList.length > 0 && totalCompraGeral > 0 ? ((totalVendasGeral / totalCompraGeral) - 1) * 100 : 0;
-        
-        document.getElementById('analisesAvancadas').innerHTML = `
-            <div class="card"><div class="metric-value">${markup.toFixed(1)}%</div><div class="metric-label">Markup Médio</div></div>
-            <div class="card"><div class="metric-value">${totalVendasGeral > 0 ? ((totalMargemGeral/totalVendasGeral)*100).toFixed(1) : 0}%</div><div class="metric-label">Margem Total</div></div>
-            <div class="card"><div class="metric-value">${vendasList.length > 0 ? formatMoney(totalVendasGeral / vendasList.length) : 'R$ 0,00'}</div><div class="metric-label">Ticket Médio</div></div>
-            <div class="card"><div class="metric-value">${vendasList.length > 0 ? (totalVolumeGeral / vendasList.length).toFixed(0) : 0} L</div><div class="metric-label">Volume Médio</div></div>
-        `;
-    }
+            
+            document.getElementById('mediasCards').innerHTML = cardsHtml || '<p>Nenhuma venda registrada.</p>';
+            
+            const markup = totalCompraGeral > 0 ? ((totalValorGeral / totalCompraGeral) - 1) * 100 : 0;
+            const ticketMedio = vendasList.length > 0 ? totalValorGeral / vendasList.length : 0;
+            const volumeMedio = vendasList.length > 0 ? totalVolumeGeral / vendasList.length : 0;
+            
+            document.getElementById('analisesAvancadas').innerHTML = `
+                <div class="card"><div class="metric-value">${markup.toFixed(1)}%</div><div class="metric-label">Markup Médio</div></div>
+                <div class="card"><div class="metric-value">${totalValorGeral > 0 ? ((totalMargemGeral/totalValorGeral)*100).toFixed(1) : 0}%</div><div class="metric-label">Margem Total</div></div>
+                <div class="card"><div class="metric-value">${vendasList.length > 0 ? formatMoney(ticketMedio) : 'R$ 0,00'}</div><div class="metric-label">Ticket Médio</div></div>
+                <div class="card"><div class="metric-value">${vendasList.length > 0 ? volumeMedio.toFixed(0) : 0} L</div><div class="metric-label">Volume Médio</div></div>
+            `;
+        }
 
-    // ==================== DRE ====================
-    function calcularDRE() {
-        const totalReceita = vendasList.reduce((s, v) => s + v.valor_venda, 0);
-        const totalCMV = vendasList.reduce((s, v) => s + v.valor_compra, 0);
-        const lucroBruto = totalReceita - totalCMV;
-        const impostos = totalReceita * 0.035;
-        
-        const salarios = parseFloat(document.getElementById('dreSalarios').value) || 0;
-        const encargos = parseFloat(document.getElementById('dreEncargos').value) || 0;
-        const contador = parseFloat(document.getElementById('dreContador').value) || 0;
-        const energia = parseFloat(document.getElementById('dreEnergia').value) || 0;
-        const aluguel = parseFloat(document.getElementById('dreAluguel').value) || 0;
-        const financiamentos = parseFloat(document.getElementById('dreFinanciamentos').value) || 0;
-        const outros = parseFloat(document.getElementById('dreOutros').value) || 0;
-        
-        const custosFixos = salarios + encargos + contador + energia + aluguel + financiamentos + outros;
-        const lucroLiquido = lucroBruto - impostos - custosFixos;
-        
-        document.getElementById('dreContent').innerHTML = `
-            <div class="dre-section">
-                <h3>📊 RECEITA OPERACIONAL</h3>
-                <div class="dre-line"><span>Vendas de Combustíveis</span><span>${formatMoney(totalReceita)}</span></div>
-                <div class="dre-line dre-total"><span>RECEITA TOTAL</span><span>${formatMoney(totalReceita)}</span></div>
-                
-                <h3 style="margin-top: 20px;">📉 CUSTOS VARIÁVEIS</h3>
-                <div class="dre-line"><span>CMV (Custo da Mercadoria)</span><span>${formatMoney(totalCMV)}</span></div>
-                <div class="dre-line"><span>Impostos (3.5%)</span><span>${formatMoney(impostos)}</span></div>
-                <div class="dre-line dre-total"><span>TOTAL CUSTOS VARIÁVEIS</span><span>${formatMoney(totalCMV + impostos)}</span></div>
-                
-                <div class="dre-result">
-                    <strong>LUCRO BRUTO</strong><br>
-                    <span style="font-size: 22px; font-weight: bold; color: ${lucroBruto >= 0 ? '#28a745' : '#dc3545'}">${formatMoney(lucroBruto)}</span><br>
-                    <small>Margem Bruta: ${totalReceita > 0 ? ((lucroBruto/totalReceita)*100).toFixed(1) : 0}%</small>
-                </div>
-            </div>
-            <div class="dre-section">
-                <h3>🏢 CUSTOS FIXOS</h3>
-                <div class="dre-line"><span>Salários</span><span>${formatMoney(salarios)}</span></div>
-                <div class="dre-line"><span>Encargos Sociais</span><span>${formatMoney(encargos)}</span></div>
-                <div class="dre-line"><span>Contador</span><span>${formatMoney(contador)}</span></div>
-                <div class="dre-line"><span>Energia</span><span>${formatMoney(energia)}</span></div>
-                <div class="dre-line"><span>Aluguel</span><span>${formatMoney(aluguel)}</span></div>
-                <div class="dre-line"><span>Financiamentos</span><span>${formatMoney(financiamentos)}</span></div>
-                <div class="dre-line"><span>Outros Custos</span><span>${formatMoney(outros)}</span></div>
-                <div class="dre-line dre-total"><span>TOTAL CUSTOS FIXOS</span><span>${formatMoney(custosFixos)}</span></div>
-                
-                <div class="dre-result" style="background: ${lucroLiquido >= 0 ? '#e8f5e9' : '#ffebee'}">
-                    <strong>RESULTADO DO EXERCÍCIO</strong><br>
-                    <span style="font-size: 24px; font-weight: bold; color: ${lucroLiquido >= 0 ? '#28a745' : '#dc3545'}">${formatMoney(lucroLiquido)}</span><br>
-                    <small>Margem Líquida: ${totalReceita > 0 ? ((lucroLiquido/totalReceita)*100).toFixed(1) : 0}%</small>
-                </div>
-            </div>
-        `;
-    }
+        // DRE
+        function carregarFiltrosDRE() { const sel = document.getElementById('dreCliente'); sel.innerHTML='<option value="">Todos</option>'; clientesList.forEach(c=>{sel.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`;}); const hoje=new Date(), pd=new Date(hoje.getFullYear(),hoje.getMonth(),1); if(!document.getElementById('dreDataInicio').value) { document.getElementById('dreDataInicio').value=pd.toISOString().split('T')[0]; document.getElementById('dreDataFim').value=hoje.toISOString().split('T')[0]; } }
+        function calcularDRE() {
+            let filtradas = [...vendasList];
+            const inicio = document.getElementById('dreDataInicio').value, fim = document.getElementById('dreDataFim').value, comb = document.getElementById('dreCombustivel').value, cid = document.getElementById('dreCliente').value;
+            if(inicio) filtradas = filtradas.filter(v=>v.data_venda>=inicio); if(fim) filtradas = filtradas.filter(v=>v.data_venda<=fim); if(comb) filtradas = filtradas.filter(v=>v.combustivel===comb); if(cid) filtradas = filtradas.filter(v=>v.cliente_id===cid);
+            const rec = filtradas.reduce((s,v)=>s+v.valor_venda,0), cmv = filtradas.reduce((s,v)=>s+v.valor_compra,0), lb = rec-cmv, imp = rec*0.035;
+            const sal = parseFloat(document.getElementById('dreSalarios').value)||0, enc = parseFloat(document.getElementById('dreEncargos').value)||0, cont = parseFloat(document.getElementById('dreContador').value)||0, eng = parseFloat(document.getElementById('dreEnergia').value)||0, alug = parseFloat(document.getElementById('dreAluguel').value)||0, fin = parseFloat(document.getElementById('dreFinanciamentos').value)||0, out = parseFloat(document.getElementById('dreOutros').value)||0;
+            const fixos = sal+enc+cont+eng+alug+fin+out, ll = lb-imp-fixos;
+            document.getElementById('dreContent').innerHTML = `<div class="dre-section"><h3>📊 RECEITA</h3><div class="dre-line"><span>Vendas</span><span>${formatMoney(rec)}</span></div><div class="dre-line dre-total"><span>RECEITA TOTAL</span><span>${formatMoney(rec)}</span></div><h3>📉 CUSTOS VARIÁVEIS</h3><div class="dre-line"><span>CMV</span><span>${formatMoney(cmv)}</span></div><div class="dre-line"><span>Impostos (3.5%)</span><span>${formatMoney(imp)}</span></div><div class="dre-line dre-total"><span>TOTAL</span><span>${formatMoney(cmv+imp)}</span></div><div class="dre-result"><strong>LUCRO BRUTO</strong><br><span style="font-size:22px;font-weight:bold;color:${lb>=0?'green':'red'}">${formatMoney(lb)}</span><br><small>Margem: ${rec>0?((lb/rec)*100).toFixed(1):0}%</small></div></div><div class="dre-section"><h3>🏢 CUSTOS FIXOS</h3><div class="dre-line"><span>Salários</span><span>${formatMoney(sal)}</span></div><div class="dre-line"><span>Encargos</span><span>${formatMoney(enc)}</span></div><div class="dre-line"><span>Contador</span><span>${formatMoney(cont)}</span></div><div class="dre-line"><span>Energia</span><span>${formatMoney(eng)}</span></div><div class="dre-line"><span>Aluguel</span><span>${formatMoney(alug)}</span></div><div class="dre-line"><span>Financiamentos</span><span>${formatMoney(fin)}</span></div><div class="dre-line"><span>Outros</span><span>${formatMoney(out)}</span></div><div class="dre-line dre-total"><span>TOTAL CUSTOS FIXOS</span><span>${formatMoney(fixos)}</span></div><div class="dre-result" style="background:${ll>=0?'#e8f5e9':'#ffebee'}"><strong>RESULTADO</strong><br><span style="font-size:24px;font-weight:bold;color:${ll>=0?'green':'red'}">${formatMoney(ll)}</span><br><small>Margem Líquida: ${rec>0?((ll/rec)*100).toFixed(1):0}%</small></div></div>`;
+        }
 
-    // ==================== LOAD SELECTS ====================
-    function loadSelects() {
-        const selectVenda = document.getElementById('vendaCliente');
-        const selectCC = document.getElementById('ccCliente');
-        const selectFiltroVenda = document.getElementById('filtroVendaCliente');
-        const selectFiltroConta = document.getElementById('filtroContaCliente');
-        
-        selectVenda.innerHTML = '<option value="">Selecione</option>';
-        selectCC.innerHTML = '<option value="">Selecione</option>';
-        selectFiltroVenda.innerHTML = '<option value="">Todos</option>';
-        selectFiltroConta.innerHTML = '<option value="">Todos</option>';
-        
-        clientesList.forEach(c => {
-            selectVenda.innerHTML += `<option value="${c.id}">${c.razao_social}</option>`;
-            selectCC.innerHTML += `<option value="${c.id}">${c.razao_social}</option>`;
-            selectFiltroVenda.innerHTML += `<option value="${c.id}">${c.razao_social}</option>`;
-            selectFiltroConta.innerHTML += `<option value="${c.id}">${c.razao_social}</option>`;
-        });
-    }
+        // EXPORTAÇÕES
+        function exportarClientes() { const ws = XLSX.utils.json_to_sheet(clientesFiltrados.map(c=>({Código:c.cliente_numero,'Razão Social':c.razao_social,CNPJ:c.cnpj||'',Segmento:c.segmento||'',Contato:c.contato||'',Telefone:c.telefone||'',Email:c.email||'',Limite:c.limite_credito,Status:c.status}))); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Clientes'); XLSX.writeFile(wb,`clientes_${new Date().toISOString().split('T')[0]}.xlsx`); }
+        function exportarVendas() { const ws = XLSX.utils.json_to_sheet(vendasFiltradas.map(v=>{const c=clientesList.find(cl=>cl.id===v.cliente_id); return{Data:v.data_venda,Cliente:c?c.razao_social:'',Combustível:v.combustivel,'Volume (L)':v.volume,'Preço Compra':v.preco_compra,'Preço Venda':v.preco_venda,'Valor Compra':v.valor_compra,'Valor Venda':v.valor_venda,Margem:v.margem,'Forma Pagamento':v.forma_pagamento,Observação:v.observacao||''}})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Vendas'); XLSX.writeFile(wb,`vendas_${new Date().toISOString().split('T')[0]}.xlsx`); }
+        function exportarContas() { const ws = XLSX.utils.json_to_sheet(contasFiltradas.map(c=>{const cli=clientesList.find(cl=>cl.id===c.cliente_id); return{Cliente:cli?cli.razao_social:'','Data Abast.':c.data_abastecimento,Previsão:c.data_previsao_pagamento,'Data Pagto':c.data_pagamento_real||'',Valor:c.valor_original,Pago:c.valor_pago,Saldo:c.saldo_devedor,Status:c.status,Observação:c.observacao||''}})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Contas'); XLSX.writeFile(wb,`contas_${new Date().toISOString().split('T')[0]}.xlsx`); }
+        function exportarExtrato() { const cid=document.getElementById('ccCliente').value; if(!cid){alert('Selecione cliente');return;} const c=clientesList.find(cl=>cl.id===cid); const dados=[]; vendasList.filter(v=>v.cliente_id===cid).forEach(v=>dados.push({Data:v.data_venda,Tipo:'Venda',Documento:v.observacao||'',Débito:v.valor_venda,Crédito:0})); contasList.filter(c=>c.cliente_id===cid && c.data_pagamento_real).forEach(p=>dados.push({Data:p.data_pagamento_real,Tipo:'Pagamento',Documento:p.observacao||'',Débito:0,Crédito:p.valor_pago})); dados.sort((a,b)=>new Date(a.Data)-new Date(b.Data)); const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,`Extrato_${c?.razao_social}`); XLSX.writeFile(wb,`extrato_${c?.razao_social}_${new Date().toISOString().split('T')[0]}.xlsx`); }
+        function exportarMedias() { const comb=['Marítimo','S-10','S-500']; const dados=comb.map(comb=>{const vc=vendasList.filter(v=>v.combustivel===comb); const tv=vc.reduce((s,v)=>s+v.volume,0); const tvl=vc.reduce((s,v)=>s+v.valor_venda,0); const tc=vc.reduce((s,v)=>s+v.valor_compra,0); return{Combustível:comb,'Volume Total':tv,'Faturamento Total':tvl,'Custo Total':tc,'Margem Total':tvl-tc,'Preço Médio':tv>0?tvl/tv:0};}); const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'MediaPonderada'); XLSX.writeFile(wb,`medias_${new Date().toISOString().split('T')[0]}.xlsx`); }
+        function exportarDRE() { const rec=vendasList.reduce((s,v)=>s+v.valor_venda,0), cmv=vendasList.reduce((s,v)=>s+v.valor_compra,0), lb=rec-cmv, imp=rec*0.035; const sal=parseFloat(document.getElementById('dreSalarios').value)||0, enc=parseFloat(document.getElementById('dreEncargos').value)||0, cont=parseFloat(document.getElementById('dreContador').value)||0, eng=parseFloat(document.getElementById('dreEnergia').value)||0, alug=parseFloat(document.getElementById('dreAluguel').value)||0, fin=parseFloat(document.getElementById('dreFinanciamentos').value)||0, out=parseFloat(document.getElementById('dreOutros').value)||0; const fixos=sal+enc+cont+eng+alug+fin+out, ll=lb-imp-fixos; const dados=[{Descrição:'RECEITA TOTAL',Valor:rec},{Descrição:'(-) CMV',Valor:cmv},{Descrição:'(=) LUCRO BRUTO',Valor:lb},{Descrição:'(-) Impostos (3.5%)',Valor:imp},{Descrição:'',Valor:0},{Descrição:'CUSTOS FIXOS',Valor:0},{Descrição:'  - Salários',Valor:sal},{Descrição:'  - Encargos',Valor:enc},{Descrição:'  - Contador',Valor:cont},{Descrição:'  - Energia',Valor:eng},{Descrição:'  - Aluguel',Valor:alug},{Descrição:'  - Financiamentos',Valor:fin},{Descrição:'  - Outros',Valor:out},{Descrição:'TOTAL CUSTOS FIXOS',Valor:fixos},{Descrição:'',Valor:0},{Descrição:'RESULTADO DO EXERCÍCIO',Valor:ll}]; const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'DRE'); XLSX.writeFile(wb,`DRE_${new Date().toISOString().split('T')[0]}.xlsx`); }
 
-    function fecharModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
+        // BACKUP
+        async function fazerBackup() { const backup={clientes:clientesList,vendas:vendasList,contasReceber:contasList,data:new Date().toISOString()}; const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_quality_${new Date().toISOString().split('T')[0]}.json`; a.click(); alert('Backup realizado!'); }
+        function restaurarBackup() { document.getElementById('restoreFileInput').click(); }
+        async function processarRestore(e) { const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=async function(ev){ try{ const backup=JSON.parse(ev.target.result); if(confirm('ATENÇÃO: Isso vai substituir todos os dados! Continuar?')){ const cs=await clientesRef.get(); for(const d of cs.docs) await clientesRef.doc(d.id).delete(); const vs=await vendasRef.get(); for(const d of vs.docs) await vendasRef.doc(d.id).delete(); const cs2=await contasRef.get(); for(const d of cs2.docs) await contasRef.doc(d.id).delete(); for(const c of backup.clientes){const{id,...d}=c; await clientesRef.add(d);} for(const v of backup.vendas){const{id,...d}=v; await vendasRef.add(d);} for(const c of backup.contasReceber){const{id,...d}=c; await contasRef.add(d);} alert('Restaurado!'); location.reload(); } }catch(err){ alert('Erro: '+err.message); } }; reader.readAsText(file); }
 
-    // Inicialização
-    document.getElementById('vendaData').value = new Date().toISOString().split('T')[0];
-    document.getElementById('contaDataPagamento').value = new Date().toISOString().split('T')[0];
-    document.getElementById('filtroVendaInicio').value = new Date(new Date().setDate(1)).toISOString().split('T')[0];
-    document.getElementById('filtroVendaFim').value = new Date().toISOString().split('T')[0];
-    
-    carregarTudo();
-</script>
+        function loadSelects() { const sv=document.getElementById('vendaCliente'), scc=document.getElementById('ccCliente'), sfv=document.getElementById('filtroVendaCliente'), sfc=document.getElementById('filtroContaCliente'); sv.innerHTML='<option value="">Selecione</option>'; scc.innerHTML='<option value="">Selecione</option>'; sfv.innerHTML='<option value="">Todos</option>'; sfc.innerHTML='<option value="">Todos</option>'; clientesList.forEach(c=>{ sv.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; scc.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; sfv.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; sfc.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; }); }
+        function fecharModal(id) { document.getElementById(id).style.display='none'; }
+
+        document.querySelectorAll('.nav-item').forEach(nav => nav.addEventListener('click', () => changePage(nav.getAttribute('data-page'))));
+    </script>
 </body>
 </html>
