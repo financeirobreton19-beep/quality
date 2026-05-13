@@ -26,7 +26,7 @@
             min-height: 100vh;
         }
         
-        /* ========== LOGIN SCREEN ========== */
+        /* Login Screen */
         .login-container {
             display: flex;
             justify-content: center;
@@ -56,12 +56,6 @@
             height: auto;
             margin-bottom: 20px;
             border-radius: 15px;
-        }
-        
-        .login-card .subtitle {
-            color: #666;
-            margin-bottom: 25px;
-            font-size: 14px;
         }
         
         .input-group {
@@ -106,7 +100,7 @@
             display: none;
         }
         
-        /* ========== APP CONTAINER ========== */
+        /* App Container */
         .app-container {
             display: flex;
             min-height: 100vh;
@@ -114,7 +108,7 @@
             flex-direction: column;
         }
         
-        /* ========== TOP BAR (Mobile) ========== */
+        /* Top Bar Mobile */
         .top-bar {
             display: none;
             background: white;
@@ -147,18 +141,12 @@
             height: auto;
         }
         
-        .top-logo span {
-            font-weight: 600;
-            color: #1a237e;
-            font-size: 16px;
-        }
-        
-        /* ========== SIDEBAR ========== */
+        /* Sidebar */
         .sidebar {
-            width: 280px;
+            width: 260px;
             background: white;
             position: fixed;
-            left: -280px;
+            left: -260px;
             top: 0;
             height: 100vh;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -193,27 +181,19 @@
         }
         
         .logo-img {
-            width: 90px;
+            width: 80px;
             height: auto;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border-radius: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .logo h2 {
             color: #1a237e;
-            margin-top: 10px;
             font-size: 18px;
         }
         
-        .logo small {
-            font-size: 11px;
-            display: block;
-            margin-top: 5px;
-        }
-        
         .nav-item {
-            padding: 14px 20px;
+            padding: 12px 20px;
             margin: 4px 12px;
             border-radius: 10px;
             cursor: pointer;
@@ -222,6 +202,7 @@
             gap: 12px;
             color: #555;
             transition: all 0.3s;
+            font-size: 14px;
         }
         
         .nav-item:hover {
@@ -233,10 +214,6 @@
             color: white;
         }
         
-        .nav-item i {
-            width: 24px;
-        }
-        
         .user-info {
             padding: 15px 20px;
             border-top: 1px solid #e0e0e0;
@@ -245,9 +222,9 @@
             text-align: center;
         }
         
-        /* ========== MAIN CONTENT ========== */
+        /* Main Content */
         .main-content {
-            padding: 15px;
+            padding: 20px;
             width: 100%;
         }
         
@@ -259,36 +236,92 @@
             display: block;
         }
         
-        /* ========== CARDS ========== */
+        /* Cards - Versão Compacta */
         .card {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
         
         .card-header {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             margin-bottom: 12px;
-            border-left: 4px solid #1a237e;
-            padding-left: 12px;
+            border-left: 3px solid #1a237e;
+            padding-left: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
         
-        /* ========== GRIDS RESPONSIVAS ========== */
-        .grid-2, .grid-3, .grid-4, .dre-layout {
+        /* Grid do Dashboard - Compacto */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
+            margin-bottom: 20px;
         }
         
-        /* ========== FORMULÁRIOS ========== */
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        .metric-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a237e;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        /* Grid de 2 colunas para gráficos */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        .chart-container canvas {
+            max-height: 200px;
+            width: 100%;
+        }
+        
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        /* Grid de 2 colunas para rankings */
+        .rankings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        /* Formulários */
         .form-group {
             margin-bottom: 12px;
         }
@@ -298,27 +331,26 @@
             margin-bottom: 5px;
             font-weight: 500;
             color: #555;
-            font-size: 13px;
+            font-size: 12px;
         }
         
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-family: inherit;
-            font-size: 16px;
+            font-size: 14px;
         }
         
-        /* ========== TABELAS ========== */
+        /* Tabelas */
         .table-wrapper {
             overflow-x: auto;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid #e9ecef;
             background: white;
-            -webkit-overflow-scrolling: touch;
         }
         
         .data-table {
@@ -339,17 +371,16 @@
             background: #1a237e;
             color: white;
             font-weight: 600;
-            white-space: nowrap;
+            font-size: 12px;
         }
         
-        /* ========== BADGES ========== */
+        /* Badges */
         .badge {
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             display: inline-block;
-            white-space: nowrap;
         }
         
         .badge-active { background: #d4edda; color: #155724; }
@@ -358,48 +389,28 @@
         .badge-vencer { background: #fff3cd; color: #856404; }
         .badge-parcial { background: #d1ecf1; color: #0c5460; }
         
-        /* ========== MÉTRICAS ========== */
-        .metric-card {
-            text-align: center;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-        
-        .metric-value {
-            font-size: 24px;
-            font-weight: 800;
-            color: #1a237e;
-        }
-        
-        .metric-label {
-            color: #666;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        
-        /* ========== BOTÕES ========== */
+        /* Botões */
         .btn {
-            padding: 12px 20px;
+            padding: 10px 16px;
             background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
         }
         
         .btn-icon {
-            padding: 8px 12px;
-            font-size: 12px;
+            padding: 6px 10px;
+            font-size: 11px;
             width: auto;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             margin: 2px;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             border: none;
         }
@@ -409,7 +420,7 @@
         .btn-primary { background: #1a237e; color: white; }
         .btn-excel { background: #25a366; color: white; }
         .btn-pdf { background: #dc3545; color: white; }
-        .btn-expand { background: #1a237e; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+        .btn-expand { background: #1a237e; color: white; border: none; border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 11px; }
         
         .button-group {
             display: flex;
@@ -419,19 +430,15 @@
             justify-content: flex-end;
         }
         
-        /* ========== FILTROS ========== */
+        /* Filtros */
         .filters {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .filters .form-group {
-            margin-bottom: 0;
-        }
-        
-        /* ========== MODAL ========== */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -470,19 +477,25 @@
             margin-top: 20px;
         }
         
-        /* ========== DRE ========== */
+        /* DRE */
+        .dre-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
         .dre-section {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             padding: 16px;
         }
         
         .dre-line {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #eee;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .dre-total {
@@ -493,34 +506,34 @@
         
         .dre-result {
             background: #e8f5e9;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 12px;
         }
         
-        /* ========== RESUMO ========== */
+        /* Ranking e Alertas */
         .resumo-card {
             background: #f8f9fa;
-            border-radius: 10px;
-            padding: 12px;
+            border-radius: 8px;
+            padding: 10px;
         }
         
         .ranking-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #e0e0e0;
-            font-size: 13px;
+            font-size: 12px;
         }
         
         .alert-card {
             background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            font-size: 12px;
+            border-left: 3px solid #ffc107;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 11px;
         }
         
         .alert-danger {
@@ -540,20 +553,22 @@
         
         .search-box i {
             position: absolute;
-            left: 12px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             color: #999;
+            font-size: 12px;
         }
         
         .search-box input {
-            padding-left: 35px;
+            padding-left: 32px;
         }
         
         .loading {
             text-align: center;
             padding: 30px;
             color: #666;
+            font-size: 13px;
         }
         
         .table-container {
@@ -564,74 +579,49 @@
             display: none;
         }
         
+        /* Grids genéricos */
+        .grid-2, .grid-3 {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        
         /* ========== RESPONSIVO ========== */
-        @media (min-width: 768px) {
-            .top-bar {
-                display: none;
-            }
-            
+        @media (min-width: 1025px) {
             .sidebar {
-                position: fixed;
                 left: 0;
-                width: 260px;
-            }
-            
-            .sidebar-overlay {
-                display: none !important;
             }
             
             .main-content {
                 margin-left: 260px;
-                padding: 25px;
+                padding: 20px;
                 width: calc(100% - 260px);
             }
             
-            .grid-2 {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .grid-3 {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .grid-4 {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .dre-layout {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .filters {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-            
-            .btn {
-                width: auto;
-            }
-            
-            .data-table {
-                font-size: 13px;
-                min-width: 100%;
-            }
-            
-            .metric-value {
-                font-size: 28px;
+            .top-bar {
+                display: none;
             }
         }
         
-        @media (max-width: 767px) {
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .rankings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
             .top-bar {
                 display: flex;
-            }
-            
-            .sidebar {
-                left: -280px;
-            }
-            
-            .sidebar.open {
-                left: 0;
             }
             
             .main-content {
@@ -639,21 +629,50 @@
                 padding: 15px;
             }
             
-            .button-group {
-                justify-content: center;
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .rankings-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .grid-2, .grid-3, .dre-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .metric-value {
+                font-size: 18px;
             }
             
             .btn-icon {
-                padding: 10px 14px;
-                font-size: 13px;
+                padding: 6px 8px;
+                font-size: 10px;
             }
             
-            .data-table th, .data-table td {
-                padding: 8px 10px;
+            .card-header {
+                font-size: 14px;
             }
         }
         
-        /* Print/PDF Styles */
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metric-value {
+                font-size: 20px;
+            }
+        }
+        
+        /* Print */
         @media print {
             .sidebar, .top-bar, .btn, .btn-icon, .filters, .button-group, .modal, .nav-menu, .user-info {
                 display: none !important;
@@ -665,10 +684,6 @@
             }
             .card {
                 break-inside: avoid;
-                page-break-inside: avoid;
-            }
-            body {
-                background: white;
             }
         }
     </style>
@@ -695,11 +710,8 @@
 
     <!-- Sistema Principal -->
     <div id="appContainer" class="app-container">
-        <!-- Top Bar Mobile -->
         <div class="top-bar">
-            <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
+            <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <div class="top-logo">
                 <img src="https://i.ibb.co/nsYYD8Wp/Imagem1.png" alt="Logo" class="top-logo-img">
                 <span>Quality Diesel</span>
@@ -778,9 +790,7 @@
         
         function toggleTable(tableId) {
             const container = document.getElementById(`${tableId}Container`);
-            if (container) {
-                container.classList.toggle('collapsed');
-            }
+            if (container) container.classList.toggle('collapsed');
         }
         
         function fecharModal(modalId) {
@@ -789,10 +799,7 @@
         
         function gerarPDF(elementId, titulo) {
             const elemento = document.getElementById(elementId);
-            if (!elemento) {
-                alert('Elemento não encontrado!');
-                return;
-            }
+            if (!elemento) { alert('Elemento não encontrado!'); return; }
             const opt = {
                 margin: [0.5, 0.5, 0.5, 0.5],
                 filename: `${titulo}_${new Date().toISOString().split('T')[0]}.pdf`,
@@ -810,25 +817,23 @@
                     <div class="button-group">
                         <button class="btn-icon btn-pdf" onclick="gerarPDF('page-dashboard', 'Dashboard_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
                     </div>
-                    <div class="grid-4" id="dashboardMetrics"></div>
-                    <div class="grid-2">
-                        <div class="card"><div class="card-header">Vendas por Combustível</div><canvas id="vendasPorCombustivelChart" height="200"></canvas></div>
-                        <div class="card"><div class="card-header">Contas a Receber por Status</div><canvas id="contasStatusChart" height="200"></canvas></div>
+                    <div class="dashboard-grid" id="dashboardMetrics"></div>
+                    <div class="charts-grid">
+                        <div class="chart-container"><div class="chart-title">📊 Vendas por Combustível</div><canvas id="vendasPorCombustivelChart" height="180"></canvas></div>
+                        <div class="chart-container"><div class="chart-title">📋 Contas a Receber por Status</div><canvas id="contasStatusChart" height="180"></canvas></div>
                     </div>
-                    <div class="grid-2">
+                    <div class="rankings-grid">
                         <div class="card"><div class="card-header">🏆 Top 5 Clientes</div><div id="rankingClientes"></div></div>
                         <div class="card"><div class="card-header">📈 Margem por Cliente</div><div id="margemPorCliente"></div></div>
                     </div>
-                    <div class="grid-2">
+                    <div class="rankings-grid">
                         <div class="card"><div class="card-header">📋 Últimas Vendas</div><div id="ultimasVendas"></div></div>
                         <div class="card"><div class="card-header">⚠️ Alertas</div><div id="alertasDashboard"></div></div>
                     </div>
                 </div>
 
                 <div id="page-clientes" class="page">
-                    <div class="button-group">
-                        <button class="btn-icon btn-pdf" onclick="gerarPDF('clientesTableContainer', 'Clientes_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
-                    </div>
+                    <div class="button-group"><button class="btn-icon btn-pdf" onclick="gerarPDF('clientesTableContainer', 'Clientes_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button></div>
                     <div class="card">
                         <div class="card-header">➕ Novo Cliente</div>
                         <div class="grid-2">
@@ -851,9 +856,7 @@
                 </div>
 
                 <div id="page-vendas" class="page">
-                    <div class="button-group">
-                        <button class="btn-icon btn-pdf" onclick="gerarPDF('vendasTableContainer', 'Vendas_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
-                    </div>
+                    <div class="button-group"><button class="btn-icon btn-pdf" onclick="gerarPDF('vendasTableContainer', 'Vendas_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button></div>
                     <div class="card">
                         <div class="card-header">📝 Nova Venda</div>
                         <div class="grid-2">
@@ -881,9 +884,7 @@
                 </div>
 
                 <div id="page-contas" class="page">
-                    <div class="button-group">
-                        <button class="btn-icon btn-pdf" onclick="gerarPDF('contasTableContainer', 'Contas_Receber_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
-                    </div>
+                    <div class="button-group"><button class="btn-icon btn-pdf" onclick="gerarPDF('contasTableContainer', 'Contas_Receber_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button></div>
                     <div class="card">
                         <div class="card-header">✅ Confirmar Recebimento</div>
                         <div class="grid-3">
@@ -910,9 +911,7 @@
                 </div>
 
                 <div id="page-contaCorrente" class="page">
-                    <div class="button-group">
-                        <button class="btn-icon btn-pdf" onclick="gerarPDF('ccExtratoContainer', 'Extrato_Conta_Corrente')"><i class="fas fa-file-pdf"></i> PDF</button>
-                    </div>
+                    <div class="button-group"><button class="btn-icon btn-pdf" onclick="gerarPDF('ccExtratoContainer', 'Extrato_Conta_Corrente')"><i class="fas fa-file-pdf"></i> PDF</button></div>
                     <div class="card">
                         <div class="card-header"><span>📊 Extrato</span><div><button class="btn-icon btn-excel" onclick="exportarExtrato()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('ccExtrato')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
                         <div class="filters">
@@ -1064,7 +1063,7 @@
             nav.addEventListener('click', () => changePage(nav.getAttribute('data-page')));
         });
         
-        // ==================== CLIENTES ====================
+        // CLIENTES
         window.salvarCliente = async function() {
             const cliente = { 
                 cliente_numero: proximoIdCliente++, 
@@ -1119,7 +1118,52 @@
             document.getElementById('clientesTable').innerHTML = html;
         }
         
-        // ==================== VENDAS ====================
+        window.editarCliente = function(num, id) { 
+            const c = clientesList.find(cl => cl.id === id); 
+            if(c) { 
+                document.getElementById('editClienteId').value = c.cliente_numero; 
+                document.getElementById('editClienteFirebaseId').value = c.id; 
+                document.getElementById('editClienteRazao').value = c.razao_social; 
+                document.getElementById('editClienteCnpj').value = c.cnpj||''; 
+                document.getElementById('editClienteSegmento').value = c.segmento||''; 
+                document.getElementById('editClienteContato').value = c.contato||''; 
+                document.getElementById('editClienteTelefone').value = c.telefone||''; 
+                document.getElementById('editClienteEmail').value = c.email||''; 
+                document.getElementById('editClienteLimite').value = c.limite_credito||0; 
+                document.getElementById('editClienteStatus').value = c.status; 
+                document.getElementById('modalCliente').style.display = 'flex'; 
+            } 
+        };
+        
+        window.salvarEdicaoCliente = async function() { 
+            const id = document.getElementById('editClienteFirebaseId').value; 
+            await clientesRef.doc(id).update({ 
+                razao_social: document.getElementById('editClienteRazao').value, 
+                cnpj: document.getElementById('editClienteCnpj').value, 
+                segmento: document.getElementById('editClienteSegmento').value, 
+                contato: document.getElementById('editClienteContato').value, 
+                telefone: document.getElementById('editClienteTelefone').value, 
+                email: document.getElementById('editClienteEmail').value, 
+                limite_credito: parseFloat(document.getElementById('editClienteLimite').value)||0, 
+                status: document.getElementById('editClienteStatus').value 
+            }); 
+            await carregarClientes(); 
+            loadClientes(); 
+            loadSelects(); 
+            fecharModal('modalCliente'); 
+            alert('Cliente atualizado!'); 
+        };
+        
+        window.excluirCliente = async function(id) { 
+            if(confirm('Tem certeza que deseja excluir este cliente?')) { 
+                await clientesRef.doc(id).delete(); 
+                await carregarClientes(); 
+                loadClientes(); 
+                loadSelects(); 
+            } 
+        };
+        
+        // VENDAS
         window.calcularMargem = function() { 
             const v=parseFloat(document.getElementById('vendaVolume').value)||0, pc=parseFloat(document.getElementById('vendaPrecoCompra').value)||0, pv=parseFloat(document.getElementById('vendaPrecoVenda').value)||0; 
             document.getElementById('vendaResumo').innerHTML = `<strong>Valor Compra:</strong> ${formatMoney(v*pc)}<br><strong>Valor Venda:</strong> ${formatMoney(v*pv)}<br><strong>Margem:</strong> ${formatMoney(v*pv - v*pc)} (${v*pv>0?((v*pv - v*pc)/(v*pv)*100).toFixed(1):0}%)`; 
@@ -1202,7 +1246,7 @@
             document.getElementById('vendasTable').innerHTML = html;
         }
         
-        // ==================== CONTAS A RECEBER ====================
+        // CONTAS A RECEBER
         window.confirmarRecebimento = async function() {
             const cid = document.getElementById('contaReceberSelect').value, val = parseFloat(document.getElementById('contaValorRecebido').value)||0;
             if(!cid||val<=0) { alert('Selecione conta e informe o valor!'); return; }
@@ -1221,6 +1265,41 @@
                 loadDashboard(); 
                 alert(`Recebido ${formatMoney(val)}! Saldo: ${formatMoney(ns)}`); 
             }
+        };
+        
+        window.editarConta = function(id) { 
+            const c = contasList.find(c=>c.id===id); 
+            if(c) { 
+                document.getElementById('editContaId').value=c.id; 
+                document.getElementById('editContaValor').value=c.valor_original; 
+                document.getElementById('editContaPago').value=c.valor_pago; 
+                document.getElementById('editContaPrevisao').value=c.data_previsao_pagamento; 
+                document.getElementById('editContaStatus').value=c.status; 
+                document.getElementById('modalConta').style.display='flex'; 
+            } 
+        };
+        
+        window.salvarEdicaoConta = async function() { 
+            const id = document.getElementById('editContaId').value, nv=parseFloat(document.getElementById('editContaValor').value)||0, np=parseFloat(document.getElementById('editContaPago').value)||0; 
+            await contasRef.doc(id).update({ 
+                valor_original: nv, 
+                valor_pago: np, 
+                saldo_devedor: nv-np, 
+                data_previsao_pagamento: document.getElementById('editContaPrevisao').value, 
+                status: document.getElementById('editContaStatus').value 
+            }); 
+            await carregarContas(); 
+            loadContas(); 
+            fecharModal('modalConta'); 
+            alert('Conta atualizada!'); 
+        };
+        
+        window.excluirConta = async function(id) { 
+            if(confirm('Tem certeza que deseja excluir esta conta?')) { 
+                await contasRef.doc(id).delete(); 
+                await carregarContas(); 
+                loadContas(); 
+            } 
         };
         
         function carregarFiltrosConta() { 
@@ -1276,12 +1355,7 @@
             let rh = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Cliente</th><th>Total</th><th>Pago</th><th>Saldo</th></tr></thead><tbody>';
             for(const [id, d] of Object.entries(resumo)) { 
                 const cli = clientesList.find(c=>c.id===id); 
-                rh += `<tr>
-                    <td><strong>${cli?cli.razao_social:'-'}</strong></td>
-                    <td>${formatMoney(d.total)}</td>
-                    <td>${formatMoney(d.pago)}</td>
-                    <td style="color:${d.saldo>0?'#dc3545':'#28a745'}"><strong>${formatMoney(d.saldo)}</strong></td>
-                </tr>`; 
+                rh += `<tr><td><strong>${cli?cli.razao_social:'-'}</strong></td><td>${formatMoney(d.total)}</td><td>${formatMoney(d.pago)}</td><td style="color:${d.saldo>0?'#dc3545':'#28a745'}"><strong>${formatMoney(d.saldo)}</strong></td></tr>`; 
             }
             rh += '</tbody></table></div>';
             document.getElementById('resumoContasCliente').innerHTML = rh;
@@ -1294,7 +1368,7 @@
             });
         }
         
-        // ==================== CONTA CORRENTE ====================
+        // CONTA CORRENTE
         window.carregarCC = async function() {
             const cid = document.getElementById('ccCliente').value; 
             if(!cid) return;
@@ -1336,22 +1410,12 @@
             if(window.ccChart) window.ccChart.destroy(); 
             window.ccChart = new Chart(ctx,{
                 type:'line',
-                data:{
-                    labels:extrato.map(e=>formatDate(e.data)),
-                    datasets:[{
-                        label:'Saldo',
-                        data:extrato.map(e=>e.saldo),
-                        borderColor:'#1a237e',
-                        backgroundColor:'rgba(26,35,126,0.1)',
-                        fill:true,
-                        tension:0.3
-                    }]
-                },
+                data:{labels:extrato.map(e=>formatDate(e.data)),datasets:[{label:'Saldo',data:extrato.map(e=>e.saldo),borderColor:'#1a237e',backgroundColor:'rgba(26,35,126,0.1)',fill:true,tension:0.3}]},
                 options:{responsive:true, maintainAspectRatio:true}
             });
         };
         
-        // ==================== MÉDIA PONDERADA ====================
+        // MÉDIA PONDERADA
         function loadMedias() {
             const combustiveis = ['Marítimo', 'S-10', 'S-500'];
             let cardsHtml = '';
@@ -1364,15 +1428,12 @@
                 const precoMedio = totalVolume > 0 ? totalValor / totalVolume : 0;
                 const margemTotal = totalValor - totalCompra;
                 const margemPercentual = totalValor > 0 ? (margemTotal / totalValor * 100) : 0;
-                totalVolumeGeral += totalVolume; 
-                totalValorGeral += totalValor; 
-                totalCompraGeral += totalCompra; 
-                totalMargemGeral += margemTotal;
-                cardsHtml += `<div class="card"><h3>${comb}</h3><p><strong>💰 Preço médio venda:</strong> ${precoMedio > 0 ? formatMoney(precoMedio) : 'R$ 0,00'}/L</p><p><strong>📦 Volume vendido:</strong> ${totalVolume.toLocaleString()} L</p><p><strong>📊 Margem total:</strong> ${formatMoney(margemTotal)} (${margemPercentual.toFixed(1)}%)</p></div>`;
+                totalVolumeGeral += totalVolume; totalValorGeral += totalValor; totalCompraGeral += totalCompra; totalMargemGeral += margemTotal;
+                cardsHtml += `<div class="card"><h3>${comb}</h3><p>💰 Preço médio: ${precoMedio > 0 ? formatMoney(precoMedio) : 'R$ 0,00'}/L</p><p>📦 Volume: ${totalVolume.toLocaleString()} L</p><p>📊 Margem: ${formatMoney(margemTotal)} (${margemPercentual.toFixed(1)}%)</p></div>`;
             });
             const precoMedioGeral = totalVolumeGeral > 0 ? totalValorGeral / totalVolumeGeral : 0;
             const margemPercentualGeral = totalValorGeral > 0 ? (totalMargemGeral / totalValorGeral * 100) : 0;
-            cardsHtml += `<div class="card" style="background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white;"><h3>📊 TOTAL GERAL</h3><p><strong>💰 Preço médio venda:</strong> ${formatMoney(precoMedioGeral)}/L</p><p><strong>📦 Volume total vendido:</strong> ${totalVolumeGeral.toLocaleString()} L</p><p><strong>💵 Faturamento total:</strong> ${formatMoney(totalValorGeral)}</p><p><strong>📈 Margem total:</strong> ${formatMoney(totalMargemGeral)} (${margemPercentualGeral.toFixed(1)}%)</p></div>`;
+            cardsHtml += `<div class="card" style="background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white;"><h3>📊 TOTAL GERAL</h3><p>💰 Preço médio: ${formatMoney(precoMedioGeral)}/L</p><p>📦 Volume total: ${totalVolumeGeral.toLocaleString()} L</p><p>💵 Faturamento: ${formatMoney(totalValorGeral)}</p><p>📈 Margem total: ${formatMoney(totalMargemGeral)} (${margemPercentualGeral.toFixed(1)}%)</p></div>`;
             document.getElementById('mediasCards').innerHTML = cardsHtml || '<p class="loading">Nenhuma venda registrada.</p>';
             const markup = totalCompraGeral > 0 ? ((totalValorGeral / totalCompraGeral) - 1) * 100 : 0;
             const ticketMedio = vendasList.length > 0 ? totalValorGeral / vendasList.length : 0;
@@ -1380,7 +1441,7 @@
             document.getElementById('analisesAvancadas').innerHTML = `<div class="card"><div class="metric-value">${markup.toFixed(1)}%</div><div class="metric-label">Markup Médio</div></div><div class="card"><div class="metric-value">${totalValorGeral > 0 ? ((totalMargemGeral/totalValorGeral)*100).toFixed(1) : 0}%</div><div class="metric-label">Margem Total</div></div><div class="card"><div class="metric-value">${vendasList.length > 0 ? formatMoney(ticketMedio) : 'R$ 0,00'}</div><div class="metric-label">Ticket Médio</div></div><div class="card"><div class="metric-value">${vendasList.length > 0 ? volumeMedio.toFixed(0) : 0} L</div><div class="metric-label">Volume Médio</div></div>`;
         }
         
-        // ==================== DRE ====================
+        // DRE
         function carregarFiltrosDRE() { 
             const sel = document.getElementById('dreCliente'); 
             sel.innerHTML='<option value="">Todos</option>'; 
@@ -1405,56 +1466,37 @@
             const dataInicio=new Date(inicio), mesAnteriorInicio=new Date(dataInicio.getFullYear(),dataInicio.getMonth()-1,1), mesAnteriorFim=new Date(dataInicio.getFullYear(),dataInicio.getMonth(),0); 
             const vendasMesAnterior=vendasList.filter(v=>v.data_venda>=mesAnteriorInicio.toISOString().split('T')[0]&&v.data_venda<=mesAnteriorFim.toISOString().split('T')[0]); 
             const recAnterior=vendasMesAnterior.reduce((s,v)=>s+v.valor_venda,0), lbAnterior=vendasMesAnterior.reduce((s,v)=>s+v.valor_venda,0)-vendasMesAnterior.reduce((s,v)=>s+v.valor_compra,0), variacaoReceita=recAnterior>0?((rec-recAnterior)/recAnterior*100):0, variacaoMargem=lbAnterior>0?((lb-lbAnterior)/lbAnterior*100):0;
-            document.getElementById('dreContent').innerHTML = `<div class="dre-section"><h3>📊 RECEITA OPERACIONAL</h3><div class="dre-line"><span>Vendas de Combustíveis</span><span>${formatMoney(rec)}</span></div><div class="dre-line dre-total"><span>RECEITA TOTAL</span><span>${formatMoney(rec)} <span class="${variacaoReceita>=0?'trend-up':'trend-down'}">${variacaoReceita>=0?'▲':'▼'} ${Math.abs(variacaoReceita).toFixed(1)}%</span></span></div><h3 style="margin-top:20px;">📉 CUSTOS VARIÁVEIS</h3><div class="dre-line"><span>CMV</span><span>${formatMoney(cmv)}</span></div><div class="dre-line"><span>Impostos (3.5%)</span><span>${formatMoney(imp)}</span></div><div class="dre-line dre-total"><span>TOTAL</span><span>${formatMoney(cmv+imp)}</span></div><div class="dre-result"><strong>LUCRO BRUTO</strong><br><span style="font-size:22px;font-weight:bold;color:${lb>=0?'#28a745':'#dc3545'}">${formatMoney(lb)}</span><br><small>Margem: ${rec>0?((lb/rec)*100).toFixed(1):0}% <span class="${variacaoMargem>=0?'trend-up':'trend-down'}">${variacaoMargem>=0?'▲':'▼'} ${Math.abs(variacaoMargem).toFixed(1)}%</span></small></div></div><div class="dre-section"><h3>🏢 CUSTOS FIXOS</h3><div class="dre-line"><span>Salários</span><span>${formatMoney(sal)}</span></div><div class="dre-line"><span>Encargos</span><span>${formatMoney(enc)}</span></div><div class="dre-line"><span>Contador</span><span>${formatMoney(cont)}</span></div><div class="dre-line"><span>Energia</span><span>${formatMoney(eng)}</span></div><div class="dre-line"><span>Aluguel</span><span>${formatMoney(alug)}</span></div><div class="dre-line"><span>Financiamentos</span><span>${formatMoney(fin)}</span></div><div class="dre-line"><span>Outros</span><span>${formatMoney(out)}</span></div><div class="dre-line dre-total"><span>TOTAL</span><span>${formatMoney(fixos)}</span></div><div class="dre-result" style="background:${ll>=0?'#e8f5e9':'#ffebee'}"><strong>RESULTADO</strong><br><span style="font-size:24px;font-weight:bold;color:${ll>=0?'#28a745':'#dc3545'}">${formatMoney(ll)}</span><br><small>Margem Líquida: ${rec>0?((ll/rec)*100).toFixed(1):0}%</small></div></div>`;
+            document.getElementById('dreContent').innerHTML = `<div class="dre-section"><h3>📊 RECEITA OPERACIONAL</h3><div class="dre-line"><span>Vendas</span><span>${formatMoney(rec)}</span></div><div class="dre-line dre-total"><span>RECEITA TOTAL</span><span>${formatMoney(rec)} <small class="${variacaoReceita>=0?'trend-up':'trend-down'}">${variacaoReceita>=0?'▲':'▼'} ${Math.abs(variacaoReceita).toFixed(1)}%</small></span></div><h3>📉 CUSTOS VARIÁVEIS</h3><div class="dre-line"><span>CMV</span><span>${formatMoney(cmv)}</span></div><div class="dre-line"><span>Impostos (3.5%)</span><span>${formatMoney(imp)}</span></div><div class="dre-line dre-total"><span>TOTAL</span><span>${formatMoney(cmv+imp)}</span></div><div class="dre-result"><strong>LUCRO BRUTO</strong><br><span style="font-size:20px;font-weight:bold;color:${lb>=0?'#28a745':'#dc3545'}">${formatMoney(lb)}</span><br><small>Margem: ${rec>0?((lb/rec)*100).toFixed(1):0}% <span class="${variacaoMargem>=0?'trend-up':'trend-down'}">${variacaoMargem>=0?'▲':'▼'} ${Math.abs(variacaoMargem).toFixed(1)}%</span></small></div></div><div class="dre-section"><h3>🏢 CUSTOS FIXOS</h3><div class="dre-line"><span>Salários</span><span>${formatMoney(sal)}</span></div><div class="dre-line"><span>Encargos</span><span>${formatMoney(enc)}</span></div><div class="dre-line"><span>Contador</span><span>${formatMoney(cont)}</span></div><div class="dre-line"><span>Energia</span><span>${formatMoney(eng)}</span></div><div class="dre-line"><span>Aluguel</span><span>${formatMoney(alug)}</span></div><div class="dre-line"><span>Financiamentos</span><span>${formatMoney(fin)}</span></div><div class="dre-line"><span>Outros</span><span>${formatMoney(out)}</span></div><div class="dre-line dre-total"><span>TOTAL</span><span>${formatMoney(fixos)}</span></div><div class="dre-result" style="background:${ll>=0?'#e8f5e9':'#ffebee'}"><strong>RESULTADO</strong><br><span style="font-size:22px;font-weight:bold;color:${ll>=0?'#28a745':'#dc3545'}">${formatMoney(ll)}</span><br><small>Margem Líquida: ${rec>0?((ll/rec)*100).toFixed(1):0}%</small></div></div>`;
         };
         
-        // ==================== DASHBOARD COM GRÁFICOS COLORIDOS ====================
+        // DASHBOARD - VERSÃO COMPACTA E PROPORCIONAL
         function loadDashboard() {
-            const totalVendas=vendasList.reduce((s,v)=>s+v.valor_venda,0);
-            const totalMargem=vendasList.reduce((s,v)=>s+v.margem,0);
-            const totalReceber=contasList.reduce((s,c)=>s+c.saldo_devedor,0);
-            const clientesAtivos=clientesList.filter(c=>c.status==='Ativo').length;
-            const margemMedia=totalVendas>0?(totalMargem/totalVendas*100):0;
+            const totalVendas = vendasList.reduce((s,v)=>s+v.valor_venda,0);
+            const totalMargem = vendasList.reduce((s,v)=>s+v.margem,0);
+            const totalReceber = contasList.reduce((s,c)=>s+c.saldo_devedor,0);
+            const clientesAtivos = clientesList.filter(c=>c.status==='Ativo').length;
+            const margemMedia = totalVendas > 0 ? (totalMargem / totalVendas * 100) : 0;
             
             document.getElementById('dashboardMetrics').innerHTML = `
-                <div class="card metric-card"><div class="metric-value">${formatMoney(totalVendas)}</div><div class="metric-label">Faturamento</div></div>
-                <div class="card metric-card"><div class="metric-value">${margemMedia.toFixed(1)}%</div><div class="metric-label">Margem Média</div></div>
-                <div class="card metric-card"><div class="metric-value">${formatMoney(totalReceber)}</div><div class="metric-label">A Receber</div></div>
-                <div class="card metric-card"><div class="metric-value">${clientesAtivos}</div><div class="metric-label">Clientes Ativos</div></div>
+                <div class="metric-card"><div class="metric-value">${formatMoney(totalVendas)}</div><div class="metric-label">Faturamento</div></div>
+                <div class="metric-card"><div class="metric-value">${margemMedia.toFixed(1)}%</div><div class="metric-label">Margem Média</div></div>
+                <div class="metric-card"><div class="metric-value">${formatMoney(totalReceber)}</div><div class="metric-label">A Receber</div></div>
+                <div class="metric-card"><div class="metric-value">${clientesAtivos}</div><div class="metric-label">Clientes Ativos</div></div>
             `;
             
-            // GRÁFICO DE VENDAS POR COMBUSTÍVEL - CORES DIFERENCIADAS
+            // Gráfico de Vendas por Combustível
             const vendasPorComb = {'Marítimo':0, 'S-10':0, 'S-500':0};
             vendasList.forEach(v => { vendasPorComb[v.combustivel] = (vendasPorComb[v.combustivel] || 0) + v.valor_venda; });
-            
-            const coresCombustiveis = {
-                'Marítimo': '#1a237e',  // Azul escuro
-                'S-10': '#28a745',      // Verde
-                'S-500': '#fd7e14'      // Laranja
-            };
             
             const ctx1 = document.getElementById('vendasPorCombustivelChart').getContext('2d');
             if(window.vendasChart) window.vendasChart.destroy();
             window.vendasChart = new Chart(ctx1, {
                 type: 'pie',
-                data: {
-                    labels: Object.keys(vendasPorComb),
-                    datasets: [{
-                        data: Object.values(vendasPorComb),
-                        backgroundColor: ['#1a237e', '#28a745', '#fd7e14'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: { callbacks: { label: function(context) { return `${context.label}: ${formatMoney(context.raw)}`; } } }
-                    }
-                }
+                data: { labels: Object.keys(vendasPorComb), datasets: [{ data: Object.values(vendasPorComb), backgroundColor: ['#1a237e', '#28a745', '#fd7e14'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatMoney(ctx.raw)}` } } } }
             });
             
-            // GRÁFICO DE CONTAS POR STATUS - CORES DIFERENCIADAS
+            // Gráfico de Contas por Status
             const hoje = new Date();
             const contasStatus = {'A vencer':0, 'Vencido':0, 'Parcial':0};
             contasList.forEach(c => {
@@ -1464,43 +1506,29 @@
                 else if(c.status !== 'Pago') contasStatus['A vencer'] += c.saldo_devedor;
             });
             
-            const coresStatus = ['#28a745', '#dc3545', '#ffc107'];
-            
             const ctx2 = document.getElementById('contasStatusChart').getContext('2d');
             if(window.contasChart) window.contasChart.destroy();
             window.contasChart = new Chart(ctx2, {
                 type: 'bar',
-                data: {
-                    labels: Object.keys(contasStatus),
-                    datasets: [{
-                        label: 'Valor (R$)',
-                        data: Object.values(contasStatus),
-                        backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { position: 'top' } }
-                }
+                data: { labels: Object.keys(contasStatus), datasets: [{ label: 'Valor (R$)', data: Object.values(contasStatus), backgroundColor: ['#28a745', '#dc3545', '#ffc107'], borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } } }
             });
             
-            // Ranking de Clientes
+            // Ranking e outras seções
             const faturamentoPorCliente = {};
             vendasList.forEach(v => { faturamentoPorCliente[v.cliente_id] = (faturamentoPorCliente[v.cliente_id] || 0) + v.valor_venda; });
             const ranking = Object.entries(faturamentoPorCliente).sort((a,b) => b[1] - a[1]).slice(0,5);
             let rankingHtml = '<div class="resumo-card">';
             ranking.forEach(([id, valor], idx) => {
                 const c = clientesList.find(cl => cl.id === id);
-                rankingHtml += `<div class="ranking-item"><span class="ranking-number">${idx+1}º</span><span><strong>${c ? c.razao_social : '-'}</strong></span><span>${formatMoney(valor)}</span></div>`;
+                rankingHtml += `<div class="ranking-item"><span><strong>${idx+1}. ${c ? c.razao_social : '-'}</strong></span><span>${formatMoney(valor)}</span></div>`;
             });
             rankingHtml += '</div>';
             document.getElementById('rankingClientes').innerHTML = rankingHtml || '<p>Sem vendas</p>';
             
-            // Margem por Cliente
             const margemPorCliente = {};
             vendasList.forEach(v => {
-                if(!margemPorCliente[v.cliente_id]) margemPorCliente[v.cliente_id] = { faturamento: 0, margem: 0 };
+                if(!margemPorCliente[v.cliente_id]) margemPorCliente[v.cliente_id] = { faturamento:0, margem:0 };
                 margemPorCliente[v.cliente_id].faturamento += v.valor_venda;
                 margemPorCliente[v.cliente_id].margem += v.margem;
             });
@@ -1508,64 +1536,51 @@
             for(const [id, dados] of Object.entries(margemPorCliente)) {
                 const c = clientesList.find(cl => cl.id === id);
                 const margemPercentual = dados.faturamento > 0 ? (dados.margem / dados.faturamento * 100) : 0;
-                let margemClass = 'badge-margem-baixa';
-                if(margemPercentual >= 20) margemClass = 'badge-margem-alta';
-                else if(margemPercentual >= 10) margemClass = 'badge-margem-media';
-                margemHtml += `<div class="ranking-item"><span><strong>${c ? c.razao_social : '-'}</strong></span><span class="badge ${margemClass}">${margemPercentual.toFixed(1)}%</span><span>${formatMoney(dados.margem)}</span></div>`;
+                margemHtml += `<div class="ranking-item"><span><strong>${c ? c.razao_social : '-'}</strong></span><span style="color:${margemPercentual>=20?'green':(margemPercentual>=10?'orange':'red')}">${margemPercentual.toFixed(1)}%</span><span>${formatMoney(dados.margem)}</span></div>`;
             }
             margemHtml += '</div>';
             document.getElementById('margemPorCliente').innerHTML = margemHtml || '<p>Sem vendas</p>';
             
-            // Últimas Vendas
             let ultimasHtml = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th></tr></thead><tbody>';
             vendasList.slice().reverse().slice(0,5).forEach(v => {
                 const c = clientesList.find(cl => cl.id === v.cliente_id);
                 ultimasHtml += `<tr><td>${formatDate(v.data_venda)}</td><td><strong>${c ? c.razao_social : '-'}</strong></td><td>${formatMoney(v.valor_venda)}</td></tr>`;
             });
-            ultimasHtml += '</tbody></table></div>';
+            ultimasHtml += '</tbody></div>';
             document.getElementById('ultimasVendas').innerHTML = ultimasHtml;
             
-            // Alertas
             let alertasHtml = '';
             contasList.forEach(c => {
                 const prev = new Date(c.data_previsao_pagamento);
                 if(prev < hoje && c.status !== 'Pago') {
                     const cli = clientesList.find(cl => cl.id === c.cliente_id);
-                    alertasHtml += `<div class="alert-card alert-danger"><strong>⚠️ Conta Vencida:</strong> ${cli ? cli.razao_social : '-'} - ${formatMoney(c.saldo_devedor)}</div>`;
+                    alertasHtml += `<div class="alert-card alert-danger">⚠️ ${cli ? cli.razao_social : '-'}: ${formatMoney(c.saldo_devedor)}</div>`;
                 } else if(prev <= new Date(hoje.getTime() + 3*24*60*60*1000) && c.status !== 'Pago') {
                     const cli = clientesList.find(cl => cl.id === c.cliente_id);
-                    alertasHtml += `<div class="alert-card"><strong>🔔 Próximo ao Vencimento:</strong> ${cli ? cli.razao_social : '-'} - ${formatMoney(c.saldo_devedor)}</div>`;
+                    alertasHtml += `<div class="alert-card">🔔 ${cli ? cli.razao_social : '-'}: ${formatMoney(c.saldo_devedor)}</div>`;
                 }
             });
-            document.getElementById('alertasDashboard').innerHTML = alertasHtml || '<div class="alert-card" style="background:#d4edda;border-left-color:#28a745;">✅ Nenhum alerta</div>';
+            document.getElementById('alertasDashboard').innerHTML = alertasHtml || '<div class="alert-card" style="background:#d4edda;">✅ Nenhum alerta</div>';
         }
         
-        // ==================== EXPORTAÇÕES ====================
+        // EXPORTAÇÕES
         window.exportarClientes = function() { const ws=XLSX.utils.json_to_sheet(clientesFiltrados.map(c=>({Código:c.cliente_numero,'Razão Social':c.razao_social,CNPJ:c.cnpj||'',Segmento:c.segmento||'',Contato:c.contato||'',Telefone:c.telefone||'',Email:c.email||'',Limite:c.limite_credito,Status:c.status}))); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Clientes'); XLSX.writeFile(wb,`clientes_${new Date().toISOString().split('T')[0]}.xlsx`); };
         window.exportarVendas = function() { const ws=XLSX.utils.json_to_sheet(vendasFiltradas.map(v=>{const c=clientesList.find(cl=>cl.id===v.cliente_id); return{Data:v.data_venda,Cliente:c?c.razao_social:'',Combustível:v.combustivel,'Volume (L)':v.volume,'Preço Compra':v.preco_compra,'Preço Venda':v.preco_venda,'Valor Compra':v.valor_compra,'Valor Venda':v.valor_venda,Margem:v.margem,'Forma Pagamento':v.forma_pagamento,Observação:v.observacao||''}})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Vendas'); XLSX.writeFile(wb,`vendas_${new Date().toISOString().split('T')[0]}.xlsx`); };
         window.exportarContas = function() { const ws=XLSX.utils.json_to_sheet(contasFiltradas.map(c=>{const cli=clientesList.find(cl=>cl.id===c.cliente_id); return{Cliente:cli?cli.razao_social:'','Data Abast.':c.data_abastecimento,Previsão:c.data_previsao_pagamento,'Data Pagto':c.data_pagamento_real||'',Valor:c.valor_original,Pago:c.valor_pago,Saldo:c.saldo_devedor,Status:c.status,Observação:c.observacao||''}})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Contas'); XLSX.writeFile(wb,`contas_${new Date().toISOString().split('T')[0]}.xlsx`); };
         window.exportarExtrato = function() { const cid=document.getElementById('ccCliente').value; if(!cid){alert('Selecione cliente');return;} const c=clientesList.find(cl=>cl.id===cid); const dados=[]; vendasList.filter(v=>v.cliente_id===cid).forEach(v=>dados.push({Data:v.data_venda,Tipo:'Venda',Documento:v.observacao||'',Débito:v.valor_venda,Crédito:0})); contasList.filter(c=>c.cliente_id===cid&&c.data_pagamento_real).forEach(p=>dados.push({Data:p.data_pagamento_real,Tipo:'Pagamento',Documento:p.observacao||'',Débito:0,Crédito:p.valor_pago})); dados.sort((a,b)=>new Date(a.Data)-new Date(b.Data)); const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,`Extrato_${c?.razao_social}`); XLSX.writeFile(wb,`extrato_${c?.razao_social}_${new Date().toISOString().split('T')[0]}.xlsx`); };
-        window.exportarMedias = function() { const comb=['Marítimo','S-10','S-500']; const dados=comb.map(comb=>{const vc=vendasList.filter(v=>v.combustivel===comb); const tv=vc.reduce((s,v)=>s+v.volume,0); const tvl=vc.reduce((s,v)=>s+v.valor_venda,0); const tc=vc.reduce((s,v)=>s+v.valor_compra,0); return{Combustível:comb,'Volume Total':tv,'Faturamento':tvl,'Custo':tc,'Margem':tvl-tc,'Preço Médio':tv>0?tvl/tv:0};}); const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Media'); XLSX.writeFile(wb,`medias_${new Date().toISOString().split('T')[0]}.xlsx`); };
+        window.exportarMedias = function() { const comb=['Marítimo','S-10','S-500']; const dados=comb.map(comb=>{const vc=vendasList.filter(v=>v.combustivel===comb); const tv=vc.reduce((s,v)=>s+v.volume,0); const tvl=vc.reduce((s,v)=>s+v.valor_venda,0); const tc=vc.reduce((s,v)=>s+v.valor_compra,0); return{Combustível:comb,'Volume':tv,'Faturamento':tvl,'Custo':tc,'Margem':tvl-tc,'Preço Médio':tv>0?tvl/tv:0};}); const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Media'); XLSX.writeFile(wb,`medias_${new Date().toISOString().split('T')[0]}.xlsx`); };
         window.exportarDRE = function() { const rec=vendasList.reduce((s,v)=>s+v.valor_venda,0), cmv=vendasList.reduce((s,v)=>s+v.valor_compra,0), lb=rec-cmv, imp=rec*0.035; const sal=parseFloat(document.getElementById('dreSalarios').value)||0, enc=parseFloat(document.getElementById('dreEncargos').value)||0, cont=parseFloat(document.getElementById('dreContador').value)||0, eng=parseFloat(document.getElementById('dreEnergia').value)||0, alug=parseFloat(document.getElementById('dreAluguel').value)||0, fin=parseFloat(document.getElementById('dreFinanciamentos').value)||0, out=parseFloat(document.getElementById('dreOutros').value)||0; const fixos=sal+enc+cont+eng+alug+fin+out, ll=lb-imp-fixos; const dados=[{Descrição:'RECEITA',Valor:rec},{Descrição:'CMV',Valor:cmv},{Descrição:'LUCRO BRUTO',Valor:lb},{Descrição:'Impostos',Valor:imp},{Descrição:'CUSTOS FIXOS',Valor:fixos},{Descrição:'RESULTADO',Valor:ll}]; const ws=XLSX.utils.json_to_sheet(dados); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'DRE'); XLSX.writeFile(wb,`DRE_${new Date().toISOString().split('T')[0]}.xlsx`); };
         
-        // ==================== BACKUP ====================
+        // BACKUP
         window.fazerBackup = async function() { const backup={clientes:clientesList,vendas:vendasList,contasReceber:contasList,data:new Date().toISOString()}; const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); alert('Backup realizado!'); };
         window.restaurarBackup = function() { document.getElementById('restoreFileInput').click(); };
         window.processarRestore = async function(e){const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=async function(ev){try{const backup=JSON.parse(ev.target.result); if(confirm('ATENÇÃO: Isso vai substituir todos os dados!')){const cs=await clientesRef.get(); for(const d of cs.docs) await clientesRef.doc(d.id).delete(); const vs=await vendasRef.get(); for(const d of vs.docs) await vendasRef.doc(d.id).delete(); const cs2=await contasRef.get(); for(const d of cs2.docs) await contasRef.doc(d.id).delete(); for(const c of backup.clientes){const{id,...d}=c; await clientesRef.add(d);} for(const v of backup.vendas){const{id,...d}=v; await vendasRef.add(d);} for(const c of backup.contasReceber){const{id,...d}=c; await contasRef.add(d);} alert('Restaurado!'); location.reload();}}catch(err){alert('Erro: '+err.message);}}; reader.readAsText(file);};
         
-        // ==================== LOAD SELECTS ====================
+        // LOAD SELECTS
         function loadSelects() { 
             const sv=document.getElementById('vendaCliente'), scc=document.getElementById('ccCliente'), sfv=document.getElementById('filtroVendaCliente'), sfc=document.getElementById('filtroContaCliente'); 
-            sv.innerHTML='<option value="">Selecione</option>'; 
-            scc.innerHTML='<option value="">Selecione</option>'; 
-            sfv.innerHTML='<option value="">Todos</option>'; 
-            sfc.innerHTML='<option value="">Todos</option>'; 
-            clientesList.forEach(c=>{ 
-                sv.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; 
-                scc.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; 
-                sfv.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; 
-                sfc.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; 
-            }); 
+            sv.innerHTML='<option value="">Selecione</option>'; scc.innerHTML='<option value="">Selecione</option>'; sfv.innerHTML='<option value="">Todos</option>'; sfc.innerHTML='<option value="">Todos</option>'; 
+            clientesList.forEach(c=>{ sv.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; scc.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; sfv.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; sfc.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; }); 
         }
     </script>
 </body>
