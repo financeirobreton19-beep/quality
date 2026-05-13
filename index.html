@@ -2,7 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#1a237e">
     <title>Quality Diesel - Sistema de Gestão</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,113 +11,673 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); position: fixed; top: 0; left: 0; width: 100%; z-index: 2000; }
-        .login-card { background: white; border-radius: 20px; padding: 40px; width: 400px; max-width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
-        .logo-login { width: 120px; height: auto; margin-bottom: 20px; border-radius: 15px; }
-        .login-card .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-        .input-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; }
-        .btn-login { width: 100%; padding: 12px; background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .btn-login:hover { opacity: 0.9; }
-        .error-message { background: #fee; color: #c00; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; display: none; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
         
-        .app-container { display: flex; min-height: 100vh; display: none; }
-        .sidebar { width: 280px; background: white; position: fixed; left: 0; top: 0; height: 100vh; box-shadow: 2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; z-index: 100; }
-        .logo { padding: 30px 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }
-        .logo-img { width: 70px; height: auto; margin-bottom: 10px; border-radius: 12px; background: white; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .logo h2 { color: #1a237e; margin-top: 10px; font-size: 18px; }
-        .logo small { font-size: 11px; display: block; margin-top: 5px; }
+        /* ========== LOGIN SCREEN ========== */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2000;
+            padding: 20px;
+        }
         
-        .nav-item { padding: 12px 24px; margin: 4px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #555; transition: all 0.3s; }
-        .nav-item:hover { background: #f5f5f5; }
-        .nav-item.active { background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white; }
-        .nav-item i { width: 24px; }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
         
-        .main-content { margin-left: 280px; padding: 30px; width: calc(100% - 280px); }
-        .page { display: none; }
-        .page.active { display: block; }
+        .logo-login {
+            width: 140px;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 15px;
+        }
         
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .card-header { font-size: 18px; font-weight: 600; margin-bottom: 15px; border-left: 4px solid #1a237e; padding-left: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .login-card .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
         
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
         
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #555; font-size: 13px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
         
-        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #e9ecef; background: white; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
-        .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e9ecef; vertical-align: top; }
-        .data-table th { background: #1a237e; color: white; font-weight: 600; cursor: pointer; user-select: none; }
-        .data-table th:hover { background: #283593; }
-        .data-table tr:hover { background: #f8f9fa; }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
         
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        /* ========== APP CONTAINER ========== */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+        }
+        
+        /* ========== TOP BAR (Mobile) ========== */
+        .top-bar {
+            display: none;
+            background: white;
+            padding: 12px 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #1a237e;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .top-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .top-logo-img {
+            width: 45px;
+            height: auto;
+        }
+        
+        .top-logo span {
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 16px;
+        }
+        
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 280px;
+            background: white;
+            position: fixed;
+            left: -280px;
+            top: 0;
+            height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 1000;
+            transition: left 0.3s ease;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        .logo {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .logo-img {
+            width: 90px;
+            height: auto;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo h2 {
+            color: #1a237e;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        
+        .logo small {
+            font-size: 11px;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .nav-item {
+            padding: 14px 20px;
+            margin: 4px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #555;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%);
+            color: white;
+        }
+        
+        .nav-item i {
+            width: 24px;
+        }
+        
+        .user-info {
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 20px;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            padding: 15px;
+            width: 100%;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* ========== CARDS ========== */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border-left: 4px solid #1a237e;
+            padding-left: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        /* ========== GRIDS RESPONSIVAS ========== */
+        .grid-2, .grid-3, .grid-4, .dre-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        /* ========== FORMULÁRIOS ========== */
+        .form-group {
+            margin-bottom: 12px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 13px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+        }
+        
+        /* ========== TABELAS ========== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            background: white;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 600px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .data-table th {
+            background: #1a237e;
+            color: white;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        /* ========== BADGES ========== */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
         .badge-active { background: #d4edda; color: #155724; }
         .badge-vencido { background: #f8d7da; color: #721c24; }
         .badge-pago { background: #d4edda; color: #155724; }
         .badge-vencer { background: #fff3cd; color: #856404; }
         .badge-parcial { background: #d1ecf1; color: #0c5460; }
         
-        .metric-card { text-align: center; padding: 15px; background: #f8f9fa; border-radius: 12px; }
-        .metric-value { font-size: 28px; font-weight: 800; color: #1a237e; }
-        .metric-label { color: #666; font-size: 12px; margin-top: 5px; }
+        /* ========== MÉTRICAS ========== */
+        .metric-card {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
         
-        .btn { padding: 10px 20px; background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-        .btn:hover { transform: translateY(-1px); opacity: 0.9; }
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a237e;
+        }
         
-        .btn-icon { padding: 6px 10px; font-size: 12px; width: auto; display: inline-flex; align-items: center; gap: 5px; margin: 2px; border-radius: 6px; cursor: pointer; border: none; }
+        .metric-label {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        /* ========== BOTÕES ========== */
+        .btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1a237e 0%, #0d1b5e 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-icon {
+            padding: 8px 12px;
+            font-size: 12px;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+        }
+        
         .btn-edit { background: #ffc107; color: #333; }
         .btn-delete { background: #dc3545; color: white; }
         .btn-primary { background: #1a237e; color: white; }
         .btn-excel { background: #25a366; color: white; }
-        .btn-expand { background: #1a237e; color: white; border: none; border-radius: 8px; padding: 5px 12px; cursor: pointer; font-size: 12px; }
+        .btn-pdf { background: #dc3545; color: white; }
+        .btn-expand { background: #1a237e; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
         
-        .filters { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; }
-        .filters .form-group { margin-bottom: 0; min-width: 150px; }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: flex-end;
+        }
         
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; border-radius: 15px; padding: 25px; width: 500px; max-width: 90%; }
-        .modal-header { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #1a237e; }
-        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        /* ========== FILTROS ========== */
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
         
-        .dre-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .dre-section { background: white; border-radius: 15px; padding: 20px; }
-        .dre-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .dre-total { font-weight: 700; font-size: 16px; color: #1a237e; border-bottom: 2px solid #1a237e; }
-        .dre-result { background: #e8f5e9; padding: 15px; border-radius: 10px; text-align: center; margin-top: 20px; }
+        .filters .form-group {
+            margin-bottom: 0;
+        }
         
-        .action-buttons { display: flex; gap: 4px; flex-wrap: wrap; }
-        .resumo-card { background: #f8f9fa; border-radius: 10px; padding: 15px; }
-        .ranking-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e0e0e0; }
-        .alert-card { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; font-size: 13px; }
-        .alert-danger { background: #f8d7da; border-left-color: #dc3545; }
+        /* ========== MODAL ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
         
-        .search-box { position: relative; }
-        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
-        .search-box input { padding-left: 35px; }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
         
-        .loading { text-align: center; padding: 40px; color: #666; }
-        .user-info { padding: 15px 20px; border-top: 1px solid #e0e0e0; margin-top: 20px; font-size: 13px; text-align: center; }
-        .table-container { transition: all 0.3s ease; }
-        .table-container.collapsed { display: none; }
-        .online { color: #28a745; }
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1a237e;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        /* ========== DRE ========== */
+        .dre-section {
+            background: white;
+            border-radius: 15px;
+            padding: 16px;
+        }
+        
+        .dre-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        
+        .dre-total {
+            font-weight: 700;
+            color: #1a237e;
+            border-bottom: 2px solid #1a237e;
+        }
+        
+        .dre-result {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        /* ========== RESUMO ========== */
+        .resumo-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+        }
+        
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+        
+        .alert-card {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .search-box input {
+            padding-left: 35px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+        
+        .table-container {
+            transition: all 0.3s ease;
+        }
+        
+        .table-container.collapsed {
+            display: none;
+        }
+        
+        /* ========== RESPONSIVO ========== */
+        @media (min-width: 768px) {
+            .top-bar {
+                display: none;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: 0;
+                width: 260px;
+            }
+            
+            .sidebar-overlay {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 260px;
+                padding: 25px;
+                width: calc(100% - 260px);
+            }
+            
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .dre-layout {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filters {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                width: auto;
+            }
+            
+            .data-table {
+                font-size: 13px;
+                min-width: 100%;
+            }
+            
+            .metric-value {
+                font-size: 28px;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .top-bar {
+                display: flex;
+            }
+            
+            .sidebar {
+                left: -280px;
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .button-group {
+                justify-content: center;
+            }
+            
+            .btn-icon {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            
+            .data-table th, .data-table td {
+                padding: 8px 10px;
+            }
+        }
+        
+        /* Print/PDF Styles */
+        @media print {
+            .sidebar, .top-bar, .btn, .btn-icon, .filters, .button-group, .modal, .nav-menu, .user-info {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+            .card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            body {
+                background: white;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Tela de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-card">
-            <img src="https://i.ibb.co/nsYYD8Wp/Imagem1.png" alt="Logo Quality Diesel" class="logo-login">
+            <img src="https://i.ibb.co/nsYYD8Wp/Imagem1.png" alt="Logo" class="logo-login">
             <p class="subtitle">Sistema de Gestão de Combustíveis</p>
             <div class="input-group">
                 <label>Usuário</label>
@@ -128,13 +689,27 @@
             </div>
             <button class="btn-login" onclick="doLogin()">Entrar</button>
             <div id="loginError" class="error-message"></div>
-            <p style="text-align:center; margin-top:15px; font-size:12px; color:#999;">admin / admin123</p>
+            <p style="text-align:center; margin-top:15px; font-size:12px;">admin / admin123</p>
         </div>
     </div>
 
     <!-- Sistema Principal -->
     <div id="appContainer" class="app-container">
-        <div class="sidebar">
+        <!-- Top Bar Mobile -->
+        <div class="top-bar">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="top-logo">
+                <img src="https://i.ibb.co/nsYYD8Wp/Imagem1.png" alt="Logo" class="top-logo-img">
+                <span>Quality Diesel</span>
+            </div>
+            <div style="width: 30px;"></div>
+        </div>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <div class="sidebar" id="sidebar">
             <div class="logo">
                 <img src="https://i.ibb.co/nsYYD8Wp/Imagem1.png" alt="Logo" class="logo-img">
                 <h2>Quality Diesel</h2>
@@ -152,160 +727,9 @@
             <div class="user-info" id="userInfo"></div>
         </div>
 
-        <div class="main-content">
-            <!-- Dashboard Page -->
-            <div id="page-dashboard" class="page">
-                <h1 style="margin-bottom: 20px;">📊 Dashboard</h1>
-                <div class="grid-4" id="dashboardMetrics"></div>
-                <div class="grid-2">
-                    <div class="card"><div class="card-header">Vendas por Combustível</div><canvas id="vendasPorCombustivelChart" height="200"></canvas></div>
-                    <div class="card"><div class="card-header">Contas a Receber por Status</div><canvas id="contasStatusChart" height="200"></canvas></div>
-                </div>
-                <div class="grid-2">
-                    <div class="card"><div class="card-header">🏆 Top 5 Clientes</div><div id="rankingClientes"></div></div>
-                    <div class="card"><div class="card-header">📈 Margem por Cliente</div><div id="margemPorCliente"></div></div>
-                </div>
-                <div class="grid-2">
-                    <div class="card"><div class="card-header">📋 Últimas Vendas</div><div id="ultimasVendas"></div></div>
-                    <div class="card"><div class="card-header">⚠️ Alertas</div><div id="alertasDashboard"></div></div>
-                </div>
-            </div>
-
-            <!-- Clientes Page -->
-            <div id="page-clientes" class="page">
-                <h1 style="margin-bottom: 20px;">👥 Clientes</h1>
-                <div class="card">
-                    <div class="card-header">➕ Novo Cliente</div>
-                    <div class="grid-2">
-                        <div class="form-group"><label>Razão Social</label><input type="text" id="clienteRazao"></div>
-                        <div class="form-group"><label>CNPJ</label><input type="text" id="clienteCnpj"></div>
-                        <div class="form-group"><label>Segmento</label><select id="clienteSegmento"><option value="">Selecione</option><option>Aéreo</option><option>Transporte</option><option>Navegação</option><option>Construção</option><option>Comércio</option><option>Outro</option></select></div>
-                        <div class="form-group"><label>Contato</label><input type="text" id="clienteContato"></div>
-                        <div class="form-group"><label>Telefone</label><input type="text" id="clienteTelefone"></div>
-                        <div class="form-group"><label>E-mail</label><input type="email" id="clienteEmail"></div>
-                        <div class="form-group"><label>Limite de Crédito (R$)</label><input type="number" id="clienteLimite" value="0"></div>
-                        <div class="form-group"><label>Status</label><select id="clienteStatus"><option>Ativo</option><option>Bloqueado</option><option>Inativo</option></select></div>
-                    </div>
-                    <button class="btn" onclick="salvarCliente()">💾 Salvar Cliente</button>
-                </div>
-                <div class="card">
-                    <div class="card-header"><span>📋 Lista de Clientes</span><div><button class="btn-icon btn-excel" onclick="exportarClientes()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('clientesTable')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
-                    <div class="filters"><div class="form-group search-box"><i class="fas fa-search"></i><input type="text" id="buscarCliente" placeholder="Buscar..." onkeyup="filtrarClientes()"></div></div>
-                    <div id="clientesTableContainer" class="table-container"><div class="table-wrapper" id="clientesTable"><div class="loading">Carregando...</div></div></div>
-                </div>
-            </div>
-
-            <!-- Vendas Page -->
-            <div id="page-vendas" class="page">
-                <h1 style="margin-bottom: 20px;">💰 Vendas</h1>
-                <div class="card">
-                    <div class="card-header">📝 Nova Venda</div>
-                    <div class="grid-2">
-                        <div class="form-group"><label>Data</label><input type="date" id="vendaData"></div>
-                        <div class="form-group"><label>Cliente</label><select id="vendaCliente"></select></div>
-                        <div class="form-group"><label>Combustível</label><select id="vendaCombustivel"><option>Marítimo</option><option>S-10</option><option>S-500</option></select></div>
-                        <div class="form-group"><label>Volume (Litros)</label><input type="number" id="vendaVolume" value="0" oninput="calcularMargem()"></div>
-                        <div class="form-group"><label>Preço Compra (R$/L)</label><input type="number" id="vendaPrecoCompra" step="0.01" value="0" oninput="calcularMargem()"></div>
-                        <div class="form-group"><label>Preço Venda (R$/L)</label><input type="number" id="vendaPrecoVenda" step="0.01" value="0" oninput="calcularMargem()"></div>
-                        <div class="form-group"><label>Forma Pagamento</label><select id="vendaFormaPagamento"><option>À vista</option><option>15 dias</option><option>30 dias</option><option>60 dias</option></select></div>
-                        <div class="form-group"><label>Observação</label><textarea id="vendaObservacao" rows="2"></textarea></div>
-                    </div>
-                    <div id="vendaResumo" style="margin:15px 0;padding:15px;background:#f5f5f5;border-radius:10px;"></div>
-                    <button class="btn" onclick="salvarVenda()">💰 Registrar Venda</button>
-                </div>
-                <div class="card">
-                    <div class="card-header"><span>📋 Histórico de Vendas</span><div><button class="btn-icon btn-excel" onclick="exportarVendas()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('vendasTable')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
-                    <div class="filters">
-                        <div class="form-group"><label>Cliente</label><select id="filtroVendaCliente" onchange="filtrarVendas()"><option value="">Todos</option></select></div>
-                        <div class="form-group"><label>Data Início</label><input type="date" id="filtroVendaInicio" onchange="filtrarVendas()"></div>
-                        <div class="form-group"><label>Data Fim</label><input type="date" id="filtroVendaFim" onchange="filtrarVendas()"></div>
-                    </div>
-                    <div id="vendasTableContainer" class="table-container"><div class="table-wrapper" id="vendasTable"><div class="loading">Carregando...</div></div></div>
-                </div>
-            </div>
-
-            <!-- Contas a Receber Page -->
-            <div id="page-contas" class="page">
-                <h1 style="margin-bottom: 20px;">📋 Contas a Receber</h1>
-                <div class="card">
-                    <div class="card-header">✅ Confirmar Recebimento</div>
-                    <div class="grid-3">
-                        <div class="form-group"><label>Selecione a Conta</label><select id="contaReceberSelect"></select></div>
-                        <div class="form-group"><label>Valor Recebido (R$)</label><input type="number" id="contaValorRecebido" step="0.01" value="0"></div>
-                        <div class="form-group"><label>Data Pagamento</label><input type="date" id="contaDataPagamento"></div>
-                    </div>
-                    <button class="btn" onclick="confirmarRecebimento()">💰 Confirmar Recebimento</button>
-                </div>
-                <div class="card">
-                    <div class="card-header"><span>📋 Lista de Contas</span><div><button class="btn-icon btn-excel" onclick="exportarContas()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('contasTable')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
-                    <div class="filters">
-                        <div class="form-group"><label>Cliente</label><select id="filtroContaCliente" onchange="filtrarContas()"><option value="">Todos</option></select></div>
-                        <div class="form-group"><label>Status</label><select id="filtroContaStatus" onchange="filtrarContas()"><option value="">Todos</option><option>A vencer</option><option>Vencido</option><option>Parcial</option><option>Pago</option></select></div>
-                        <div class="form-group"><label>Data Início</label><input type="date" id="filtroContaInicio" onchange="filtrarContas()"></div>
-                        <div class="form-group"><label>Data Fim</label><input type="date" id="filtroContaFim" onchange="filtrarContas()"></div>
-                    </div>
-                    <div id="contasTableContainer" class="table-container"><div class="table-wrapper" id="contasTable"><div class="loading">Carregando...</div></div></div>
-                </div>
-                <div class="card">
-                    <div class="card-header"><span>📊 Resumo por Cliente</span><button class="btn-expand" onclick="toggleTable('resumoContasCliente')"><i class="fas fa-chevron-down"></i> Expandir</button></div>
-                    <div id="resumoContasClienteContainer" class="table-container"><div id="resumoContasCliente"></div></div>
-                </div>
-            </div>
-
-            <!-- Conta Corrente Page -->
-            <div id="page-contaCorrente" class="page">
-                <h1 style="margin-bottom: 20px;">🏦 Conta Corrente</h1>
-                <div class="card">
-                    <div class="card-header"><span>📊 Extrato</span><div><button class="btn-icon btn-excel" onclick="exportarExtrato()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('ccExtrato')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
-                    <div class="filters">
-                        <div class="form-group"><label>Cliente</label><select id="ccCliente" onchange="carregarCC()"></select></div>
-                        <div class="form-group"><label>Período</label><select id="ccPeriodo" onchange="carregarCC()"><option>Últimos 30 dias</option><option>Últimos 90 dias</option><option>Todo histórico</option></select></div>
-                    </div>
-                    <div id="ccResumoCliente"></div>
-                    <div id="ccExtratoContainer" class="table-container"><div class="table-wrapper" id="ccExtrato"></div></div>
-                    <canvas id="ccChart" height="100" style="margin-top: 20px;"></canvas>
-                </div>
-            </div>
-
-            <!-- Média Ponderada Page -->
-            <div id="page-medias" class="page">
-                <h1 style="margin-bottom: 20px;">📊 Média Ponderada</h1>
-                <div class="btn-group"><button class="btn-icon btn-excel" onclick="exportarMedias()"><i class="fas fa-file-excel"></i> Exportar</button><button class="btn-icon btn-primary" onclick="fazerBackup()"><i class="fas fa-download"></i> Backup</button><button class="btn-icon btn-edit" onclick="restaurarBackup()"><i class="fas fa-upload"></i> Restaurar</button></div>
-                <div class="grid-3" id="mediasCards"></div>
-                <div class="card"><div class="card-header">📈 Análises Avançadas</div><div class="grid-2" id="analisesAvancadas"></div></div>
-            </div>
-
-            <!-- DRE Page -->
-            <div id="page-dre" class="page">
-                <h1 style="margin-bottom: 20px;">📄 DRE</h1>
-                <div class="btn-group"><button class="btn-icon btn-excel" onclick="exportarDRE()"><i class="fas fa-file-excel"></i> Exportar</button></div>
-                <div class="card">
-                    <div class="card-header">🔍 Filtros</div>
-                    <div class="filters">
-                        <div class="form-group"><label>Data Início</label><input type="date" id="dreDataInicio" onchange="calcularDRE()"></div>
-                        <div class="form-group"><label>Data Fim</label><input type="date" id="dreDataFim" onchange="calcularDRE()"></div>
-                        <div class="form-group"><label>Combustível</label><select id="dreCombustivel" onchange="calcularDRE()"><option value="">Todos</option><option>Marítimo</option><option>S-10</option><option>S-500</option></select></div>
-                        <div class="form-group"><label>Cliente</label><select id="dreCliente" onchange="calcularDRE()"><option value="">Todos</option></select></div>
-                    </div>
-                </div>
-                <div class="dre-layout" id="dreContent"></div>
-                <div class="card">
-                    <div class="card-header">⚙️ Custos Fixos (editáveis)</div>
-                    <div class="grid-3">
-                        <div class="form-group"><label>Salários</label><input type="number" id="dreSalarios" value="45000" step="1000" oninput="calcularDRE()"></div>
-                        <div class="form-group"><label>Encargos Sociais</label><input type="number" id="dreEncargos" value="15000" step="1000" oninput="calcularDRE()"></div>
-                        <div class="form-group"><label>Contador</label><input type="number" id="dreContador" value="2000" step="500" oninput="calcularDRE()"></div>
-                        <div class="form-group"><label>Energia</label><input type="number" id="dreEnergia" value="3000" step="500" oninput="calcularDRE()"></div>
-                        <div class="form-group"><label>Aluguel</label><input type="number" id="dreAluguel" value="5000" step="500" oninput="calcularDRE()"></div>
-                        <div class="form-group"><label>Financiamentos</label><input type="number" id="dreFinanciamentos" value="14000" step="1000" oninput="calcularDRE()"></div>
-                        <div class="form-group"><label>Outros Custos</label><input type="number" id="dreOutros" value="3000" step="500" oninput="calcularDRE()"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="main-content" id="mainContent"></div>
     </div>
 
-    <!-- Modais -->
     <div id="modalCliente" class="modal"><div class="modal-content"><div class="modal-header">✏️ Editar Cliente</div><input type="hidden" id="editClienteId"><input type="hidden" id="editClienteFirebaseId"><div class="form-group"><label>Razão Social</label><input type="text" id="editClienteRazao"></div><div class="form-group"><label>CNPJ</label><input type="text" id="editClienteCnpj"></div><div class="form-group"><label>Segmento</label><select id="editClienteSegmento"><option>Aéreo</option><option>Transporte</option><option>Navegação</option><option>Construção</option><option>Comércio</option><option>Outro</option></select></div><div class="form-group"><label>Contato</label><input type="text" id="editClienteContato"></div><div class="form-group"><label>Telefone</label><input type="text" id="editClienteTelefone"></div><div class="form-group"><label>Email</label><input type="email" id="editClienteEmail"></div><div class="form-group"><label>Limite de Crédito</label><input type="number" id="editClienteLimite" step="1000"></div><div class="form-group"><label>Status</label><select id="editClienteStatus"><option>Ativo</option><option>Bloqueado</option><option>Inativo</option></select></div><div class="modal-buttons"><button class="btn-icon btn-primary" onclick="salvarEdicaoCliente()">Salvar</button><button class="btn-icon btn-delete" onclick="fecharModal('modalCliente')">Cancelar</button></div></div></div>
 
     <div id="modalConta" class="modal"><div class="modal-content"><div class="modal-header">✏️ Editar Conta</div><input type="hidden" id="editContaId"><div class="form-group"><label>Valor Original</label><input type="number" step="0.01" id="editContaValor"></div><div class="form-group"><label>Valor Pago</label><input type="number" step="0.01" id="editContaPago"></div><div class="form-group"><label>Data Previsão</label><input type="date" id="editContaPrevisao"></div><div class="form-group"><label>Status</label><select id="editContaStatus"><option>A vencer</option><option>Vencido</option><option>Parcial</option><option>Pago</option></select></div><div class="modal-buttons"><button class="btn-icon btn-primary" onclick="salvarEdicaoConta()">Salvar</button><button class="btn-icon btn-delete" onclick="fecharModal('modalConta')">Cancelar</button></div></div></div>
@@ -313,7 +737,7 @@
     <input type="file" id="restoreFileInput" style="display: none;" accept=".json" onchange="processarRestore(event)">
 
     <script>
-        // ==================== FIREBASE CONFIG ====================
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyAa0ejRh5Q5WTJMgBX5pFRKeifSxQD6IyQ",
             authDomain: "quality-1211b.firebaseapp.com",
@@ -330,13 +754,11 @@
         const vendasRef = db.collection('vendas');
         const contasRef = db.collection('contasReceber');
 
-        // ==================== VARIÁVEIS GLOBAIS ====================
         let clientesList = [], vendasList = [], contasList = [];
         let clientesFiltrados = [], vendasFiltradas = [], contasFiltradas = [];
         let currentUser = null;
         let proximoIdCliente = 1;
 
-        // ==================== FUNÇÕES AUXILIARES ====================
         function formatMoney(v) { 
             if (v === undefined || v === null || isNaN(v)) return 'R$ 0,00';
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v); 
@@ -345,6 +767,13 @@
         function formatDate(d) { 
             if (!d) return '-';
             return new Date(d).toLocaleDateString('pt-BR'); 
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
         }
         
         function toggleTable(tableId) {
@@ -357,27 +786,207 @@
         function fecharModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
+        
+        function gerarPDF(elementId, titulo) {
+            const elemento = document.getElementById(elementId);
+            if (!elemento) {
+                alert('Elemento não encontrado!');
+                return;
+            }
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `${titulo}_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(elemento).save();
+        }
+        
+        function renderizarConteudo() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div id="page-dashboard" class="page">
+                    <div class="button-group">
+                        <button class="btn-icon btn-pdf" onclick="gerarPDF('page-dashboard', 'Dashboard_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
+                    </div>
+                    <div class="grid-4" id="dashboardMetrics"></div>
+                    <div class="grid-2">
+                        <div class="card"><div class="card-header">Vendas por Combustível</div><canvas id="vendasPorCombustivelChart" height="200"></canvas></div>
+                        <div class="card"><div class="card-header">Contas a Receber por Status</div><canvas id="contasStatusChart" height="200"></canvas></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card"><div class="card-header">🏆 Top 5 Clientes</div><div id="rankingClientes"></div></div>
+                        <div class="card"><div class="card-header">📈 Margem por Cliente</div><div id="margemPorCliente"></div></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card"><div class="card-header">📋 Últimas Vendas</div><div id="ultimasVendas"></div></div>
+                        <div class="card"><div class="card-header">⚠️ Alertas</div><div id="alertasDashboard"></div></div>
+                    </div>
+                </div>
 
-        // ==================== LOGIN ====================
+                <div id="page-clientes" class="page">
+                    <div class="button-group">
+                        <button class="btn-icon btn-pdf" onclick="gerarPDF('clientesTableContainer', 'Clientes_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">➕ Novo Cliente</div>
+                        <div class="grid-2">
+                            <div class="form-group"><label>Razão Social</label><input type="text" id="clienteRazao"></div>
+                            <div class="form-group"><label>CNPJ</label><input type="text" id="clienteCnpj"></div>
+                            <div class="form-group"><label>Segmento</label><select id="clienteSegmento"><option value="">Selecione</option><option>Aéreo</option><option>Transporte</option><option>Navegação</option><option>Construção</option><option>Comércio</option><option>Outro</option></select></div>
+                            <div class="form-group"><label>Contato</label><input type="text" id="clienteContato"></div>
+                            <div class="form-group"><label>Telefone</label><input type="text" id="clienteTelefone"></div>
+                            <div class="form-group"><label>E-mail</label><input type="email" id="clienteEmail"></div>
+                            <div class="form-group"><label>Limite de Crédito (R$)</label><input type="number" id="clienteLimite" value="0"></div>
+                            <div class="form-group"><label>Status</label><select id="clienteStatus"><option>Ativo</option><option>Bloqueado</option><option>Inativo</option></select></div>
+                        </div>
+                        <button class="btn" onclick="salvarCliente()">💾 Salvar Cliente</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span>📋 Lista de Clientes</span><div><button class="btn-icon btn-excel" onclick="exportarClientes()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('clientesTable')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
+                        <div class="filters"><div class="form-group search-box"><i class="fas fa-search"></i><input type="text" id="buscarCliente" placeholder="Buscar..." onkeyup="filtrarClientes()"></div></div>
+                        <div id="clientesTableContainer" class="table-container"><div class="table-wrapper" id="clientesTable"><div class="loading">Carregando...</div></div></div>
+                    </div>
+                </div>
+
+                <div id="page-vendas" class="page">
+                    <div class="button-group">
+                        <button class="btn-icon btn-pdf" onclick="gerarPDF('vendasTableContainer', 'Vendas_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">📝 Nova Venda</div>
+                        <div class="grid-2">
+                            <div class="form-group"><label>Data</label><input type="date" id="vendaData"></div>
+                            <div class="form-group"><label>Cliente</label><select id="vendaCliente"></select></div>
+                            <div class="form-group"><label>Combustível</label><select id="vendaCombustivel"><option>Marítimo</option><option>S-10</option><option>S-500</option></select></div>
+                            <div class="form-group"><label>Volume (Litros)</label><input type="number" id="vendaVolume" value="0" oninput="calcularMargem()"></div>
+                            <div class="form-group"><label>Preço Compra (R$/L)</label><input type="number" id="vendaPrecoCompra" step="0.01" value="0" oninput="calcularMargem()"></div>
+                            <div class="form-group"><label>Preço Venda (R$/L)</label><input type="number" id="vendaPrecoVenda" step="0.01" value="0" oninput="calcularMargem()"></div>
+                            <div class="form-group"><label>Forma Pagamento</label><select id="vendaFormaPagamento"><option>À vista</option><option>15 dias</option><option>30 dias</option><option>60 dias</option></select></div>
+                            <div class="form-group"><label>Observação</label><textarea id="vendaObservacao" rows="2"></textarea></div>
+                        </div>
+                        <div id="vendaResumo" style="margin:15px 0;padding:15px;background:#f5f5f5;border-radius:10px;"></div>
+                        <button class="btn" onclick="salvarVenda()">💰 Registrar Venda</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span>📋 Histórico de Vendas</span><div><button class="btn-icon btn-excel" onclick="exportarVendas()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('vendasTable')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
+                        <div class="filters">
+                            <div class="form-group"><label>Cliente</label><select id="filtroVendaCliente" onchange="filtrarVendas()"><option value="">Todos</option></select></div>
+                            <div class="form-group"><label>Data Início</label><input type="date" id="filtroVendaInicio" onchange="filtrarVendas()"></div>
+                            <div class="form-group"><label>Data Fim</label><input type="date" id="filtroVendaFim" onchange="filtrarVendas()"></div>
+                        </div>
+                        <div id="vendasTableContainer" class="table-container"><div class="table-wrapper" id="vendasTable"><div class="loading">Carregando...</div></div></div>
+                    </div>
+                </div>
+
+                <div id="page-contas" class="page">
+                    <div class="button-group">
+                        <button class="btn-icon btn-pdf" onclick="gerarPDF('contasTableContainer', 'Contas_Receber_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">✅ Confirmar Recebimento</div>
+                        <div class="grid-3">
+                            <div class="form-group"><label>Selecione a Conta</label><select id="contaReceberSelect"></select></div>
+                            <div class="form-group"><label>Valor Recebido (R$)</label><input type="number" id="contaValorRecebido" step="0.01" value="0"></div>
+                            <div class="form-group"><label>Data Pagamento</label><input type="date" id="contaDataPagamento"></div>
+                        </div>
+                        <button class="btn" onclick="confirmarRecebimento()">💰 Confirmar Recebimento</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span>📋 Lista de Contas</span><div><button class="btn-icon btn-excel" onclick="exportarContas()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('contasTable')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
+                        <div class="filters">
+                            <div class="form-group"><label>Cliente</label><select id="filtroContaCliente" onchange="filtrarContas()"><option value="">Todos</option></select></div>
+                            <div class="form-group"><label>Status</label><select id="filtroContaStatus" onchange="filtrarContas()"><option value="">Todos</option><option>A vencer</option><option>Vencido</option><option>Parcial</option><option>Pago</option></select></div>
+                            <div class="form-group"><label>Data Início</label><input type="date" id="filtroContaInicio" onchange="filtrarContas()"></div>
+                            <div class="form-group"><label>Data Fim</label><input type="date" id="filtroContaFim" onchange="filtrarContas()"></div>
+                        </div>
+                        <div id="contasTableContainer" class="table-container"><div class="table-wrapper" id="contasTable"><div class="loading">Carregando...</div></div></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span>📊 Resumo por Cliente</span><button class="btn-expand" onclick="toggleTable('resumoContasCliente')"><i class="fas fa-chevron-down"></i> Expandir</button></div>
+                        <div id="resumoContasClienteContainer" class="table-container"><div id="resumoContasCliente"></div></div>
+                    </div>
+                </div>
+
+                <div id="page-contaCorrente" class="page">
+                    <div class="button-group">
+                        <button class="btn-icon btn-pdf" onclick="gerarPDF('ccExtratoContainer', 'Extrato_Conta_Corrente')"><i class="fas fa-file-pdf"></i> PDF</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span>📊 Extrato</span><div><button class="btn-icon btn-excel" onclick="exportarExtrato()"><i class="fas fa-file-excel"></i> Excel</button><button class="btn-expand" onclick="toggleTable('ccExtrato')"><i class="fas fa-chevron-down"></i> Expandir</button></div></div>
+                        <div class="filters">
+                            <div class="form-group"><label>Cliente</label><select id="ccCliente" onchange="carregarCC()"></select></div>
+                            <div class="form-group"><label>Período</label><select id="ccPeriodo" onchange="carregarCC()"><option>Últimos 30 dias</option><option>Últimos 90 dias</option><option>Todo histórico</option></select></div>
+                        </div>
+                        <div id="ccResumoCliente"></div>
+                        <div id="ccExtratoContainer" class="table-container"><div class="table-wrapper" id="ccExtrato"></div></div>
+                        <canvas id="ccChart" height="100" style="margin-top: 20px;"></canvas>
+                    </div>
+                </div>
+
+                <div id="page-medias" class="page">
+                    <div class="button-group">
+                        <button class="btn-icon btn-pdf" onclick="gerarPDF('mediasCards', 'Media_Ponderada_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn-icon btn-excel" onclick="exportarMedias()"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn-icon btn-primary" onclick="fazerBackup()"><i class="fas fa-download"></i> Backup</button>
+                        <button class="btn-icon btn-edit" onclick="restaurarBackup()"><i class="fas fa-upload"></i> Restaurar</button>
+                    </div>
+                    <div class="grid-3" id="mediasCards"></div>
+                    <div class="card"><div class="card-header">📈 Análises Avançadas</div><div class="grid-2" id="analisesAvancadas"></div></div>
+                </div>
+
+                <div id="page-dre" class="page">
+                    <div class="button-group">
+                        <button class="btn-icon btn-pdf" onclick="gerarPDF('dreContent', 'DRE_Quality_Diesel')"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn-icon btn-excel" onclick="exportarDRE()"><i class="fas fa-file-excel"></i> Excel</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🔍 Filtros</div>
+                        <div class="filters">
+                            <div class="form-group"><label>Data Início</label><input type="date" id="dreDataInicio" onchange="calcularDRE()"></div>
+                            <div class="form-group"><label>Data Fim</label><input type="date" id="dreDataFim" onchange="calcularDRE()"></div>
+                            <div class="form-group"><label>Combustível</label><select id="dreCombustivel" onchange="calcularDRE()"><option value="">Todos</option><option>Marítimo</option><option>S-10</option><option>S-500</option></select></div>
+                            <div class="form-group"><label>Cliente</label><select id="dreCliente" onchange="calcularDRE()"><option value="">Todos</option></select></div>
+                        </div>
+                    </div>
+                    <div class="dre-layout" id="dreContent"></div>
+                    <div class="card">
+                        <div class="card-header">⚙️ Custos Fixos (editáveis)</div>
+                        <div class="grid-3">
+                            <div class="form-group"><label>Salários</label><input type="number" id="dreSalarios" value="45000" step="1000" oninput="calcularDRE()"></div>
+                            <div class="form-group"><label>Encargos Sociais</label><input type="number" id="dreEncargos" value="15000" step="1000" oninput="calcularDRE()"></div>
+                            <div class="form-group"><label>Contador</label><input type="number" id="dreContador" value="2000" step="500" oninput="calcularDRE()"></div>
+                            <div class="form-group"><label>Energia</label><input type="number" id="dreEnergia" value="3000" step="500" oninput="calcularDRE()"></div>
+                            <div class="form-group"><label>Aluguel</label><input type="number" id="dreAluguel" value="5000" step="500" oninput="calcularDRE()"></div>
+                            <div class="form-group"><label>Financiamentos</label><input type="number" id="dreFinanciamentos" value="14000" step="1000" oninput="calcularDRE()"></div>
+                            <div class="form-group"><label>Outros Custos</label><input type="number" id="dreOutros" value="3000" step="500" oninput="calcularDRE()"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('vendaData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('contaDataPagamento').value = new Date().toISOString().split('T')[0];
+            document.getElementById('filtroVendaInicio').value = new Date(new Date().setDate(1)).toISOString().split('T')[0];
+            document.getElementById('filtroVendaFim').value = new Date().toISOString().split('T')[0];
+        }
+        
+        // Funções de Login
         window.doLogin = function() {
             const username = document.getElementById('loginUser').value;
             const password = document.getElementById('loginPass').value;
-            
-            // Usuários fixos para teste
             const usuarios = [
                 { username: 'admin', password: 'admin123', nome: 'Administrador', perfil: 'admin' },
                 { username: 'vendedor', password: 'venda123', nome: 'Vendedor', perfil: 'vendedor' }
             ];
-            
             const found = usuarios.find(u => u.username === username && u.password === password);
-            
             if (found) {
                 currentUser = found;
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'flex';
                 document.getElementById('userInfo').innerHTML = `<i class="fas fa-user-circle"></i> ${found.nome}<br><small>${found.perfil === 'admin' ? 'Administrador' : 'Vendedor'}</small><br><button class="btn-icon btn-delete" onclick="doLogout()" style="width:100%; margin-top:10px;">Sair</button>`;
-                
-                // Inicializar sistema
+                renderizarConteudo();
                 inicializarSistema();
             } else {
                 const err = document.getElementById('loginError');
@@ -393,7 +1002,6 @@
             document.getElementById('appContainer').style.display = 'none';
         };
         
-        // ==================== CARREGAMENTO DE DADOS ====================
         async function carregarProximoId() { 
             const snap = await clientesRef.orderBy('cliente_numero', 'desc').limit(1).get(); 
             if (!snap.empty) proximoIdCliente = snap.docs[0].data().cliente_numero + 1; 
@@ -434,13 +1042,8 @@
             await carregarTudo(); 
             document.getElementById('syncStatus').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Firebase Online'; 
             document.getElementById('syncStatus').classList.add('online'); 
-            document.getElementById('vendaData').value = new Date().toISOString().split('T')[0]; 
-            document.getElementById('contaDataPagamento').value = new Date().toISOString().split('T')[0]; 
-            document.getElementById('filtroVendaInicio').value = new Date(new Date().setDate(1)).toISOString().split('T')[0]; 
-            document.getElementById('filtroVendaFim').value = new Date().toISOString().split('T')[0]; 
         }
         
-        // ==================== NAVEGAÇÃO ====================
         window.changePage = function(p) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(`page-${p}`).classList.add('active');
@@ -454,6 +1057,7 @@
             if (p === 'medias') loadMedias();
             if (p === 'dre') { carregarFiltrosDRE(); calcularDRE(); }
             if (p === 'dashboard') loadDashboard();
+            if (window.innerWidth <= 768) toggleSidebar();
         };
         
         document.querySelectorAll('.nav-item').forEach(nav => {
@@ -485,51 +1089,6 @@
             document.getElementById('clienteEmail').value = '';
             document.getElementById('clienteLimite').value = 0;
             alert('Cliente cadastrado!');
-        };
-        
-        window.editarCliente = function(num, id) { 
-            const c = clientesList.find(cl => cl.id === id); 
-            if(c) { 
-                document.getElementById('editClienteId').value = c.cliente_numero; 
-                document.getElementById('editClienteFirebaseId').value = c.id; 
-                document.getElementById('editClienteRazao').value = c.razao_social; 
-                document.getElementById('editClienteCnpj').value = c.cnpj||''; 
-                document.getElementById('editClienteSegmento').value = c.segmento||''; 
-                document.getElementById('editClienteContato').value = c.contato||''; 
-                document.getElementById('editClienteTelefone').value = c.telefone||''; 
-                document.getElementById('editClienteEmail').value = c.email||''; 
-                document.getElementById('editClienteLimite').value = c.limite_credito||0; 
-                document.getElementById('editClienteStatus').value = c.status; 
-                document.getElementById('modalCliente').style.display = 'flex'; 
-            } 
-        };
-        
-        window.salvarEdicaoCliente = async function() { 
-            const id = document.getElementById('editClienteFirebaseId').value; 
-            await clientesRef.doc(id).update({ 
-                razao_social: document.getElementById('editClienteRazao').value, 
-                cnpj: document.getElementById('editClienteCnpj').value, 
-                segmento: document.getElementById('editClienteSegmento').value, 
-                contato: document.getElementById('editClienteContato').value, 
-                telefone: document.getElementById('editClienteTelefone').value, 
-                email: document.getElementById('editClienteEmail').value, 
-                limite_credito: parseFloat(document.getElementById('editClienteLimite').value)||0, 
-                status: document.getElementById('editClienteStatus').value 
-            }); 
-            await carregarClientes(); 
-            loadClientes(); 
-            loadSelects(); 
-            fecharModal('modalCliente'); 
-            alert('Cliente atualizado!'); 
-        };
-        
-        window.excluirCliente = async function(id) { 
-            if(confirm('Tem certeza que deseja excluir este cliente?')) { 
-                await clientesRef.doc(id).delete(); 
-                await carregarClientes(); 
-                loadClientes(); 
-                loadSelects(); 
-            } 
         };
         
         window.filtrarClientes = function() { 
@@ -664,41 +1223,6 @@
             }
         };
         
-        window.editarConta = function(id) { 
-            const c = contasList.find(c=>c.id===id); 
-            if(c) { 
-                document.getElementById('editContaId').value=c.id; 
-                document.getElementById('editContaValor').value=c.valor_original; 
-                document.getElementById('editContaPago').value=c.valor_pago; 
-                document.getElementById('editContaPrevisao').value=c.data_previsao_pagamento; 
-                document.getElementById('editContaStatus').value=c.status; 
-                document.getElementById('modalConta').style.display='flex'; 
-            } 
-        };
-        
-        window.salvarEdicaoConta = async function() { 
-            const id = document.getElementById('editContaId').value, nv=parseFloat(document.getElementById('editContaValor').value)||0, np=parseFloat(document.getElementById('editContaPago').value)||0; 
-            await contasRef.doc(id).update({ 
-                valor_original: nv, 
-                valor_pago: np, 
-                saldo_devedor: nv-np, 
-                data_previsao_pagamento: document.getElementById('editContaPrevisao').value, 
-                status: document.getElementById('editContaStatus').value 
-            }); 
-            await carregarContas(); 
-            loadContas(); 
-            fecharModal('modalConta'); 
-            alert('Conta atualizada!'); 
-        };
-        
-        window.excluirConta = async function(id) { 
-            if(confirm('Tem certeza que deseja excluir esta conta?')) { 
-                await contasRef.doc(id).delete(); 
-                await carregarContas(); 
-                loadContas(); 
-            } 
-        };
-        
         function carregarFiltrosConta() { 
             contasFiltradas = [...contasList]; 
             const cid=document.getElementById('filtroContaCliente').value, st=document.getElementById('filtroContaStatus').value, inicio=document.getElementById('filtroContaInicio').value, fim=document.getElementById('filtroContaFim').value; 
@@ -742,7 +1266,6 @@
             html += '</tbody></table></div>';
             document.getElementById('contasTable').innerHTML = html;
             
-            // Resumo por Cliente
             const resumo = {};
             contasList.forEach(c => { 
                 if(!resumo[c.cliente_id]) resumo[c.cliente_id]={total:0,pago:0,saldo:0}; 
@@ -796,7 +1319,7 @@
                 document.getElementById('ccExtrato').innerHTML='<div class="loading">Nenhum movimento no período.</div>'; 
                 return; 
             }
-            let eh='<div class="table-wrapper"><table class="data-table"><thead><tr><th>Data</th><th>Tipo</th><th>Documento</th><th>Débito</th><th>Crédito</th><th>Saldo</th></td></thead><tbody>';
+            let eh='<div class="table-wrapper"><table class="data-table"><thead><tr><th>Data</th><th>Tipo</th><th>Documento</th><th>Débito</th><th>Crédito</th><th>Saldo</th></tr></thead><tbody>';
             extrato.forEach(e=>{ 
                 eh+=`<tr>
                     <td>${formatDate(e.data)}</td>
@@ -811,7 +1334,21 @@
             document.getElementById('ccExtrato').innerHTML=eh;
             const ctx = document.getElementById('ccChart').getContext('2d'); 
             if(window.ccChart) window.ccChart.destroy(); 
-            window.ccChart = new Chart(ctx,{type:'line',data:{labels:extrato.map(e=>formatDate(e.data)),datasets:[{label:'Saldo',data:extrato.map(e=>e.saldo),borderColor:'#1a237e',fill:true}]},options:{responsive:true}});
+            window.ccChart = new Chart(ctx,{
+                type:'line',
+                data:{
+                    labels:extrato.map(e=>formatDate(e.data)),
+                    datasets:[{
+                        label:'Saldo',
+                        data:extrato.map(e=>e.saldo),
+                        borderColor:'#1a237e',
+                        backgroundColor:'rgba(26,35,126,0.1)',
+                        fill:true,
+                        tension:0.3
+                    }]
+                },
+                options:{responsive:true, maintainAspectRatio:true}
+            });
         };
         
         // ==================== MÉDIA PONDERADA ====================
@@ -871,16 +1408,136 @@
             document.getElementById('dreContent').innerHTML = `<div class="dre-section"><h3>📊 RECEITA OPERACIONAL</h3><div class="dre-line"><span>Vendas de Combustíveis</span><span>${formatMoney(rec)}</span></div><div class="dre-line dre-total"><span>RECEITA TOTAL</span><span>${formatMoney(rec)} <span class="${variacaoReceita>=0?'trend-up':'trend-down'}">${variacaoReceita>=0?'▲':'▼'} ${Math.abs(variacaoReceita).toFixed(1)}%</span></span></div><h3 style="margin-top:20px;">📉 CUSTOS VARIÁVEIS</h3><div class="dre-line"><span>CMV</span><span>${formatMoney(cmv)}</span></div><div class="dre-line"><span>Impostos (3.5%)</span><span>${formatMoney(imp)}</span></div><div class="dre-line dre-total"><span>TOTAL</span><span>${formatMoney(cmv+imp)}</span></div><div class="dre-result"><strong>LUCRO BRUTO</strong><br><span style="font-size:22px;font-weight:bold;color:${lb>=0?'#28a745':'#dc3545'}">${formatMoney(lb)}</span><br><small>Margem: ${rec>0?((lb/rec)*100).toFixed(1):0}% <span class="${variacaoMargem>=0?'trend-up':'trend-down'}">${variacaoMargem>=0?'▲':'▼'} ${Math.abs(variacaoMargem).toFixed(1)}%</span></small></div></div><div class="dre-section"><h3>🏢 CUSTOS FIXOS</h3><div class="dre-line"><span>Salários</span><span>${formatMoney(sal)}</span></div><div class="dre-line"><span>Encargos</span><span>${formatMoney(enc)}</span></div><div class="dre-line"><span>Contador</span><span>${formatMoney(cont)}</span></div><div class="dre-line"><span>Energia</span><span>${formatMoney(eng)}</span></div><div class="dre-line"><span>Aluguel</span><span>${formatMoney(alug)}</span></div><div class="dre-line"><span>Financiamentos</span><span>${formatMoney(fin)}</span></div><div class="dre-line"><span>Outros</span><span>${formatMoney(out)}</span></div><div class="dre-line dre-total"><span>TOTAL</span><span>${formatMoney(fixos)}</span></div><div class="dre-result" style="background:${ll>=0?'#e8f5e9':'#ffebee'}"><strong>RESULTADO</strong><br><span style="font-size:24px;font-weight:bold;color:${ll>=0?'#28a745':'#dc3545'}">${formatMoney(ll)}</span><br><small>Margem Líquida: ${rec>0?((ll/rec)*100).toFixed(1):0}%</small></div></div>`;
         };
         
-        // ==================== DASHBOARD ====================
+        // ==================== DASHBOARD COM GRÁFICOS COLORIDOS ====================
         function loadDashboard() {
-            const totalVendas=vendasList.reduce((s,v)=>s+v.valor_venda,0), totalMargem=vendasList.reduce((s,v)=>s+v.margem,0), totalReceber=contasList.reduce((s,c)=>s+c.saldo_devedor,0), clientesAtivos=clientesList.filter(c=>c.status==='Ativo').length, margemMedia=totalVendas>0?(totalMargem/totalVendas*100):0;
-            document.getElementById('dashboardMetrics').innerHTML = `<div class="card metric-card"><div class="metric-value">${formatMoney(totalVendas)}</div><div class="metric-label">Faturamento</div></div><div class="card metric-card"><div class="metric-value">${margemMedia.toFixed(1)}%</div><div class="metric-label">Margem Média</div></div><div class="card metric-card"><div class="metric-value">${formatMoney(totalReceber)}</div><div class="metric-label">A Receber</div></div><div class="card metric-card"><div class="metric-value">${clientesAtivos}</div><div class="metric-label">Clientes Ativos</div></div>`;
-            const vendasPorComb={'Marítimo':0,'S-10':0,'S-500':0}; vendasList.forEach(v=>{vendasPorComb[v.combustivel]=(vendasPorComb[v.combustivel]||0)+v.valor_venda;}); const ctx1=document.getElementById('vendasPorCombustivelChart').getContext('2d'); if(window.vendasChart) window.vendasChart.destroy(); window.vendasChart=new Chart(ctx1,{type:'pie',data:{labels:Object.keys(vendasPorComb),datasets:[{data:Object.values(vendasPorComb),backgroundColor:['#1a237e','#283593','#3f51b5']}]},options:{responsive:true}});
-            const hoje=new Date(); const contasStatus={'A vencer':0,'Vencido':0,'Parcial':0}; contasList.forEach(c=>{const prev=new Date(c.data_previsao_pagamento); if(c.status==='Parcial') contasStatus.Parcial+=c.saldo_devedor; else if(prev<hoje&&c.status!=='Pago') contasStatus.Vencido+=c.saldo_devedor; else if(c.status!=='Pago') contasStatus['A vencer']+=c.saldo_devedor;}); const ctx2=document.getElementById('contasStatusChart').getContext('2d'); if(window.contasChart) window.contasChart.destroy(); window.contasChart=new Chart(ctx2,{type:'bar',data:{labels:Object.keys(contasStatus),datasets:[{label:'Valor (R$)',data:Object.values(contasStatus),backgroundColor:'#1a237e'}]},options:{responsive:true}});
-            const faturamentoPorCliente={}; vendasList.forEach(v=>{faturamentoPorCliente[v.cliente_id]=(faturamentoPorCliente[v.cliente_id]||0)+v.valor_venda;}); const ranking=Object.entries(faturamentoPorCliente).sort((a,b)=>b[1]-a[1]).slice(0,5); let rankingHtml='<div class="resumo-card">'; ranking.forEach(([id,valor],idx)=>{const c=clientesList.find(cl=>cl.id===id); rankingHtml+=`<div class="ranking-item"><span class="ranking-number">${idx+1}º</span><span><strong>${c?c.razao_social:'-'}</strong></span><span>${formatMoney(valor)}</span></div>`;}); rankingHtml+='</div>'; document.getElementById('rankingClientes').innerHTML=rankingHtml||'<p>Sem vendas</p>';
-            const margemPorCliente={}; vendasList.forEach(v=>{if(!margemPorCliente[v.cliente_id]) margemPorCliente[v.cliente_id]={faturamento:0,margem:0}; margemPorCliente[v.cliente_id].faturamento+=v.valor_venda; margemPorCliente[v.cliente_id].margem+=v.margem;}); let margemHtml='<div class="resumo-card">'; for(const[id,dados]of Object.entries(margemPorCliente)){const c=clientesList.find(cl=>cl.id===id); const margemPercentual=dados.faturamento>0?(dados.margem/dados.faturamento*100):0; let margemClass='badge-margem-baixa'; if(margemPercentual>=20) margemClass='badge-margem-alta'; else if(margemPercentual>=10) margemClass='badge-margem-media'; margemHtml+=`<div class="ranking-item"><span><strong>${c?c.razao_social:'-'}</strong></span><span class="badge ${margemClass}">${margemPercentual.toFixed(1)}%</span><span>${formatMoney(dados.margem)}</span></div>`;} margemHtml+='</div>'; document.getElementById('margemPorCliente').innerHTML=margemHtml||'<p>Sem vendas</p>';
-            let ultimasHtml='<div class="table-wrapper"><table class="data-table"><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th></tr></thead><tbody>'; vendasList.slice().reverse().slice(0,5).forEach(v=>{const c=clientesList.find(cl=>cl.id===v.cliente_id); ultimasHtml+=`<tr><td>${formatDate(v.data_venda)}</td><td><strong>${c?c.razao_social:'-'}</strong></td><td>${formatMoney(v.valor_venda)}</td></tr>`;}); ultimasHtml+='</tbody></div>'; document.getElementById('ultimasVendas').innerHTML=ultimasHtml;
-            let alertasHtml=''; contasList.forEach(c=>{const prev=new Date(c.data_previsao_pagamento); if(prev<hoje&&c.status!=='Pago'){const cli=clientesList.find(cl=>cl.id===c.cliente_id); alertasHtml+=`<div class="alert-card alert-danger"><strong>⚠️ Conta Vencida:</strong> ${cli?cli.razao_social:'-'} - ${formatMoney(c.saldo_devedor)}</div>`;}else if(prev<=new Date(hoje.getTime()+3*24*60*60*1000)&&c.status!=='Pago'){const cli=clientesList.find(cl=>cl.id===c.cliente_id); alertasHtml+=`<div class="alert-card"><strong>🔔 Próximo ao Vencimento:</strong> ${cli?cli.razao_social:'-'} - ${formatMoney(c.saldo_devedor)}</div>`;}}); document.getElementById('alertasDashboard').innerHTML=alertasHtml||'<div class="alert-card" style="background:#d4edda;border-left-color:#28a745;">✅ Nenhum alerta</div>';
+            const totalVendas=vendasList.reduce((s,v)=>s+v.valor_venda,0);
+            const totalMargem=vendasList.reduce((s,v)=>s+v.margem,0);
+            const totalReceber=contasList.reduce((s,c)=>s+c.saldo_devedor,0);
+            const clientesAtivos=clientesList.filter(c=>c.status==='Ativo').length;
+            const margemMedia=totalVendas>0?(totalMargem/totalVendas*100):0;
+            
+            document.getElementById('dashboardMetrics').innerHTML = `
+                <div class="card metric-card"><div class="metric-value">${formatMoney(totalVendas)}</div><div class="metric-label">Faturamento</div></div>
+                <div class="card metric-card"><div class="metric-value">${margemMedia.toFixed(1)}%</div><div class="metric-label">Margem Média</div></div>
+                <div class="card metric-card"><div class="metric-value">${formatMoney(totalReceber)}</div><div class="metric-label">A Receber</div></div>
+                <div class="card metric-card"><div class="metric-value">${clientesAtivos}</div><div class="metric-label">Clientes Ativos</div></div>
+            `;
+            
+            // GRÁFICO DE VENDAS POR COMBUSTÍVEL - CORES DIFERENCIADAS
+            const vendasPorComb = {'Marítimo':0, 'S-10':0, 'S-500':0};
+            vendasList.forEach(v => { vendasPorComb[v.combustivel] = (vendasPorComb[v.combustivel] || 0) + v.valor_venda; });
+            
+            const coresCombustiveis = {
+                'Marítimo': '#1a237e',  // Azul escuro
+                'S-10': '#28a745',      // Verde
+                'S-500': '#fd7e14'      // Laranja
+            };
+            
+            const ctx1 = document.getElementById('vendasPorCombustivelChart').getContext('2d');
+            if(window.vendasChart) window.vendasChart.destroy();
+            window.vendasChart = new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(vendasPorComb),
+                    datasets: [{
+                        data: Object.values(vendasPorComb),
+                        backgroundColor: ['#1a237e', '#28a745', '#fd7e14'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { callbacks: { label: function(context) { return `${context.label}: ${formatMoney(context.raw)}`; } } }
+                    }
+                }
+            });
+            
+            // GRÁFICO DE CONTAS POR STATUS - CORES DIFERENCIADAS
+            const hoje = new Date();
+            const contasStatus = {'A vencer':0, 'Vencido':0, 'Parcial':0};
+            contasList.forEach(c => {
+                const prev = new Date(c.data_previsao_pagamento);
+                if(c.status === 'Parcial') contasStatus.Parcial += c.saldo_devedor;
+                else if(prev < hoje && c.status !== 'Pago') contasStatus.Vencido += c.saldo_devedor;
+                else if(c.status !== 'Pago') contasStatus['A vencer'] += c.saldo_devedor;
+            });
+            
+            const coresStatus = ['#28a745', '#dc3545', '#ffc107'];
+            
+            const ctx2 = document.getElementById('contasStatusChart').getContext('2d');
+            if(window.contasChart) window.contasChart.destroy();
+            window.contasChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(contasStatus),
+                    datasets: [{
+                        label: 'Valor (R$)',
+                        data: Object.values(contasStatus),
+                        backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+            
+            // Ranking de Clientes
+            const faturamentoPorCliente = {};
+            vendasList.forEach(v => { faturamentoPorCliente[v.cliente_id] = (faturamentoPorCliente[v.cliente_id] || 0) + v.valor_venda; });
+            const ranking = Object.entries(faturamentoPorCliente).sort((a,b) => b[1] - a[1]).slice(0,5);
+            let rankingHtml = '<div class="resumo-card">';
+            ranking.forEach(([id, valor], idx) => {
+                const c = clientesList.find(cl => cl.id === id);
+                rankingHtml += `<div class="ranking-item"><span class="ranking-number">${idx+1}º</span><span><strong>${c ? c.razao_social : '-'}</strong></span><span>${formatMoney(valor)}</span></div>`;
+            });
+            rankingHtml += '</div>';
+            document.getElementById('rankingClientes').innerHTML = rankingHtml || '<p>Sem vendas</p>';
+            
+            // Margem por Cliente
+            const margemPorCliente = {};
+            vendasList.forEach(v => {
+                if(!margemPorCliente[v.cliente_id]) margemPorCliente[v.cliente_id] = { faturamento: 0, margem: 0 };
+                margemPorCliente[v.cliente_id].faturamento += v.valor_venda;
+                margemPorCliente[v.cliente_id].margem += v.margem;
+            });
+            let margemHtml = '<div class="resumo-card">';
+            for(const [id, dados] of Object.entries(margemPorCliente)) {
+                const c = clientesList.find(cl => cl.id === id);
+                const margemPercentual = dados.faturamento > 0 ? (dados.margem / dados.faturamento * 100) : 0;
+                let margemClass = 'badge-margem-baixa';
+                if(margemPercentual >= 20) margemClass = 'badge-margem-alta';
+                else if(margemPercentual >= 10) margemClass = 'badge-margem-media';
+                margemHtml += `<div class="ranking-item"><span><strong>${c ? c.razao_social : '-'}</strong></span><span class="badge ${margemClass}">${margemPercentual.toFixed(1)}%</span><span>${formatMoney(dados.margem)}</span></div>`;
+            }
+            margemHtml += '</div>';
+            document.getElementById('margemPorCliente').innerHTML = margemHtml || '<p>Sem vendas</p>';
+            
+            // Últimas Vendas
+            let ultimasHtml = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th></tr></thead><tbody>';
+            vendasList.slice().reverse().slice(0,5).forEach(v => {
+                const c = clientesList.find(cl => cl.id === v.cliente_id);
+                ultimasHtml += `<tr><td>${formatDate(v.data_venda)}</td><td><strong>${c ? c.razao_social : '-'}</strong></td><td>${formatMoney(v.valor_venda)}</td></tr>`;
+            });
+            ultimasHtml += '</tbody></table></div>';
+            document.getElementById('ultimasVendas').innerHTML = ultimasHtml;
+            
+            // Alertas
+            let alertasHtml = '';
+            contasList.forEach(c => {
+                const prev = new Date(c.data_previsao_pagamento);
+                if(prev < hoje && c.status !== 'Pago') {
+                    const cli = clientesList.find(cl => cl.id === c.cliente_id);
+                    alertasHtml += `<div class="alert-card alert-danger"><strong>⚠️ Conta Vencida:</strong> ${cli ? cli.razao_social : '-'} - ${formatMoney(c.saldo_devedor)}</div>`;
+                } else if(prev <= new Date(hoje.getTime() + 3*24*60*60*1000) && c.status !== 'Pago') {
+                    const cli = clientesList.find(cl => cl.id === c.cliente_id);
+                    alertasHtml += `<div class="alert-card"><strong>🔔 Próximo ao Vencimento:</strong> ${cli ? cli.razao_social : '-'} - ${formatMoney(c.saldo_devedor)}</div>`;
+                }
+            });
+            document.getElementById('alertasDashboard').innerHTML = alertasHtml || '<div class="alert-card" style="background:#d4edda;border-left-color:#28a745;">✅ Nenhum alerta</div>';
         }
         
         // ==================== EXPORTAÇÕES ====================
@@ -910,11 +1567,6 @@
                 sfc.innerHTML+=`<option value="${c.id}">${c.razao_social}</option>`; 
             }); 
         }
-        
-        // Inicializar navegação
-        document.querySelectorAll('.nav-item').forEach(nav => {
-            nav.addEventListener('click', () => changePage(nav.getAttribute('data-page')));
-        });
     </script>
 </body>
 </html>
